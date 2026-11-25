@@ -131,7 +131,7 @@ binary_train_performance <- function(outcome, train_data, features, models.indiv
     }
 
     y.pred.avg.all<- rep(NA, length(outcome))
-    mat.test.full<- NULL
+    y.pred.avg1.all <- rep(NA_real_, length(outcome))
     for(i in seq_len(nfold))
     {
       cur.train=which(cv.fold!=i)
@@ -584,15 +584,9 @@ binary_train_performance <- function(outcome, train_data, features, models.indiv
         y.pred.avg.all[cur.test] <- rowMeans(mat.test, na.rm = TRUE)
       }
 
-      mat.test.full <- rbind(mat.test.full, mat.test)
+      y.pred.avg1.all[cur.test] <- rowMeans(mat.test)
 
     }
-    ########### simple avg ###############
-
-    mat.test.full[mat.test.full < 0] <- 0
-    mat.test.full[mat.test.full > 1] <- 1
-
-    y.pred.avg1.all<-apply(mat.test.full,1,mean)
 
     ############# pooling ensemble of methods ####################
 
@@ -941,7 +935,7 @@ surv_train_performance <- function(outcome, survdays, time_point, train_data, fe
     }
 
     y.pred.avg.all<- rep(NA, length(outcome))
-    mat.test.full<- NULL
+    y.pred.avg1.all <- rep(NA_real_, length(outcome))
 
     for (i in seq_len(nfold)) {
       cur.train=which(cv.fold!=i)
@@ -949,6 +943,7 @@ surv_train_performance <- function(outcome, survdays, time_point, train_data, fe
 
       mat.train<- NULL
       mat.test<- NULL
+      simple.test <- NULL
       y.pred.train.all<- NULL
       y.pred.mat.all<- NULL
 
@@ -1279,6 +1274,7 @@ surv_train_performance <- function(outcome, survdays, time_point, train_data, fe
           get(paste0("y.train_ts.", m, "_", f))
         }))
 
+        simple.test <- cbind(simple.test, foo2)
         foo2[foo2 < 0] <- 0
         foo2[foo2 > 1] <- 1
 
@@ -1539,14 +1535,8 @@ surv_train_performance <- function(outcome, survdays, time_point, train_data, fe
 
       y.pred.avg.all[cur.test] <- y.pred.avg
 
-      mat.test.full <- rbind(mat.test.full, mat.test)
+      y.pred.avg1.all[cur.test] <- rowMeans(simple.test)
     }
-    ########### simple avg ###############
-
-    mat.test.full[mat.test.full < 0] <- 0
-    mat.test.full[mat.test.full > 1] <- 1
-
-    y.pred.avg1.all<-apply(mat.test.full,1,mean)
 
     ############# pooling ensemble of methods ####################
 
@@ -1809,9 +1799,13 @@ get_multiclass_auc_ci <- function(y_true, y_pred_mat, nboot = 200, seed = 123) {
 }
 cat_train_performance <- function(outcome, train_data, features, models.indiv, iter, num.folds = NULL, ensemble = FALSE, models.ens = NULL, param.indiv = NULL, param.ens = NULL, iter.offset = 0) {
 
+  outcome <- droplevels(as.factor(outcome))
+  models.indiv <- toupper(models.indiv)
+  models.ens <- if (isTRUE(ensemble)) toupper(models.ens %||% models.indiv) else character(0)
   num_classes <- length(unique(outcome))
   nfold <- max(2L, as.integer(num.folds %||% 3L))
   class_levels <- levels(outcome)
+  cluster_levels <- paste0("C", class_levels)
   fallback_probabilities <- function(y, n) {
     tab <- table(factor(y, levels = class_levels))
     probs <- as.numeric(tab + 0.5)
@@ -1940,7 +1934,7 @@ cat_train_performance <- function(outcome, train_data, features, models.indiv, i
 
     #y.pred.avg.all <- matrix(NA, nrow = length(outcome), ncol = length(unique(outcome))) # No weighted avg
 
-    mat.test.full<- NULL
+    y.pred.avg1.all <- matrix(NA_real_, nrow = length(outcome), ncol = num_classes)
     for(i in seq_len(nfold))
     {
       cur.train=which(cv.fold!=i)
@@ -1962,11 +1956,11 @@ cat_train_performance <- function(outcome, train_data, features, models.indiv, i
         xtest<-(data_train)[cur.test,]
 
         xtrain_cl <- as.data.frame(xtrain)
-        xtrain_cl$cluster <- factor(paste0("C", outcome[cur.train]))
+        xtrain_cl$cluster <- factor(paste0("C", outcome[cur.train]), levels = cluster_levels)
         ytrain <- outcome[cur.train]
 
         xtest_cl <- as.data.frame(xtest)
-        xtest_cl$cluster <- factor(paste0("C", outcome[cur.test]))
+        xtest_cl$cluster <- factor(paste0("C", outcome[cur.test]), levels = cluster_levels)
 
         for (model_name in models.indiv) {
           if (toupper(model_name) == "XG") {
@@ -2153,7 +2147,7 @@ cat_train_performance <- function(outcome, train_data, features, models.indiv, i
 
             pred <- quiet(predict(temp, newdata= xtest_cl, probability = TRUE))
             probs <- attr(pred, "probabilities")
-            class_order <- paste0("C", seq_len(num_classes))
+            class_order <- cluster_levels
             probs_reordered <- probs[, class_order, drop = FALSE]
             y.pred.SVM <- probs_reordered
             y.train_ts.SVM <- probs_reordered
@@ -2200,7 +2194,7 @@ cat_train_performance <- function(outcome, train_data, features, models.indiv, i
           }
         }
 
-        for (model_name in models.ens) {
+        for (model_name in models.indiv) {
           if (toupper(model_name) == "XG") {
             mat.train <- cbind(mat.train, y.train_tr.XG)
             mat.test <- cbind(mat.test, y.train_ts.XG)
@@ -2277,10 +2271,10 @@ cat_train_performance <- function(outcome, train_data, features, models.indiv, i
 
       for (model_name in models.ens) {
         mat.train.ens_cl <- as.data.frame(mat.train)
-        mat.train.ens_cl$cluster <- factor(paste0("C", outcome[cur.train]))
+        mat.train.ens_cl$cluster <- factor(paste0("C", outcome[cur.train]), levels = cluster_levels)
 
         mat.test.ens_cl <- as.data.frame(mat.test)
-        mat.test.ens_cl$cluster <- factor(paste0("C", outcome[cur.test]))
+        mat.test.ens_cl$cluster <- factor(paste0("C", outcome[cur.test]), levels = cluster_levels)
 
         if (grepl("XG", model_name, ignore.case = TRUE)) {
           params_xg <- modifyList(ens.defaults$XG, param.ens[["XG"]] %||% list())
@@ -2442,12 +2436,9 @@ cat_train_performance <- function(outcome, train_data, features, models.indiv, i
       #temp.avg.all <- multinom(outcome[cur.train] ~ ., data = y.pred.train.all, trace = FALSE)
       #y.pred.avg.all[cur.test, ] <- predict(temp.avg.all, newdata = y.pred.mat.all, type = "probs")
 
-      mat.test.full <- rbind(mat.test.full, mat.test)
+      y.pred.avg1.all[cur.test, ] <- multiclass_simple_average(mat.test, num_classes)
 
     }
-    ########### simple avg ###############
-
-    y.pred.avg1.all <- multiclass_simple_average(mat.test.full, num_classes)
 
     ############# pooling ensemble of methods ####################
 
@@ -2654,17 +2645,7 @@ cat_train_performance <- function(outcome, train_data, features, models.indiv, i
     }
   }
 
-  num_samples <- nrow(y.pred.avg.pool1.all.S)
-  num_models  <- length(models.ens)
-  num_features <- length(features)
-
-  # reshape to 3D: samples x classes x (features*models)
-  arr <- array(y.pred.avg.pool1.all.S, dim = c(num_samples, num_classes, num_features*num_models))
-
-  # average per class across features and models
-  s_mat <- apply(arr, c(1,2), mean)
-
-  # now s_mat is n_samples x n_classes
+  s_mat <- y.pred.avg.pool1.all.S
   colnames(s_mat) <- levels(outcome)
   roc.all1 <- multiclass.roc(outcome.pool, s_mat)
   roc.all1$ci <- get_multiclass_auc_ci(outcome.pool, s_mat, nboot = 200)

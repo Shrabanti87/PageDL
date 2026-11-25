@@ -1,6 +1,6 @@
 Package: CASPEN
 Title: CASPEN: Celltype-Aware Stacked Pathway-Guided Ensemble Prediction
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: c(
     person("Shrabanti", "Chowdhury",
       email = "shrabanti.chowdhury@mssm.edu",

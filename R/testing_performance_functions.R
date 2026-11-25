@@ -599,6 +599,10 @@ binary_test_performance <- function(outcome, train_data, test_data, test_outcome
 ####### Categorical ######
 cat_test_performance <- function(outcome, train_data, test_data, test_outcome, features, models.indiv, ensemble = FALSE, models.ens = NULL, param.indiv = NULL, param.ens = NULL) {
 
+  outcome <- droplevels(as.factor(outcome))
+  cluster_levels <- paste0("C", levels(outcome))
+  models.indiv <- toupper(models.indiv)
+  models.ens <- if (isTRUE(ensemble)) toupper(models.ens %||% models.indiv) else character(0)
   indiv.defaults <- list(
     XG = list(max_depth = 2, eta = 0.1, nrounds = 50, verbose = FALSE),
     RF = list(ntree = 500),
@@ -733,7 +737,7 @@ cat_test_performance <- function(outcome, train_data, test_data, test_outcome, f
     }
 
     xtrain_cl <- as.data.frame(xtrain)
-    xtrain_cl$cluster <- factor(paste0("C", outcome))
+    xtrain_cl$cluster <- factor(paste0("C", outcome), levels = cluster_levels)
 
     ytrain <- outcome
 
@@ -840,7 +844,7 @@ cat_test_performance <- function(outcome, train_data, test_data, test_outcome, f
 
         pred <- predict(temp, newdata= xtest_cl, probability = TRUE)
         probs <- attr(pred, "probabilities")
-        class_order <- paste0("C", seq_len(num_classes))
+        class_order <- cluster_levels
         y.train_ts.SVM <- probs[, class_order, drop = FALSE]
 
         pred <- predict(temp, newdata= xtrain_cl, probability = TRUE)
@@ -880,7 +884,7 @@ cat_test_performance <- function(outcome, train_data, test_data, test_outcome, f
       }
     }
 
-    for (model_name in models.ens) {
+    for (model_name in models.indiv) {
       if (toupper(model_name) == "XG") {
         mat.train <- cbind(mat.train, y.train_tr.XG)
         mat.test <- cbind(mat.test, y.train_ts.XG)
@@ -952,10 +956,11 @@ cat_test_performance <- function(outcome, train_data, test_data, test_outcome, f
 
   ########## ensemble of methods ###########
 
-  colnames(mat.train)<- colnames(mat.test)<- colnames(y.pred.train.all)<- colnames(y.pred.mat.all)<- paste0("M",1:(length(models.ens)*length(features)*num_classes))
+  colnames(mat.train) <- colnames(mat.test) <- colnames(y.pred.train.all) <-
+    colnames(y.pred.mat.all) <- paste0("M", seq_len(ncol(mat.test)))
 
   mat.train.ens_cl <- as.data.frame(mat.train)
-  mat.train.ens_cl$cluster <- factor(paste0("C", outcome))
+  mat.train.ens_cl$cluster <- factor(paste0("C", outcome), levels = cluster_levels)
 
   mat.test.ens_cl <- as.data.frame(mat.test)
 
@@ -1038,11 +1043,8 @@ cat_test_performance <- function(outcome, train_data, test_data, test_outcome, f
   }
 
   ########### simple avg ###############
-  N <- nrow(mat.test)
   K <- length(unique(outcome))
-  M <- length(models.ens)
-
-  y.pred.avg1.all <- multiclass_simple_average(mat.test, K)
+  all1.mat <- multiclass_simple_average(mat.test, K)
   ########## predict on test set using ensemble ###########
 
   if (exists("temp.XG")) {
@@ -1191,7 +1193,6 @@ cat_test_performance <- function(outcome, train_data, test_data, test_outcome, f
     }
   }
 
-  all1.mat <- matrix(y.pred.avg1.all, ncol = num_classes, byrow = TRUE)
   colnames(all1.mat) <- levels(outcome)
   roc.all1 <- multiclass.roc(outcome.pool, all1.mat)
   roc.all1$ci <- get_multiclass_auc_ci(outcome.pool, all1.mat, nboot = 200)
@@ -1234,6 +1235,7 @@ cat_test_performance <- function(outcome, train_data, test_data, test_outcome, f
 surv_test_performance <- function(xtrain_time, outcome, xtest_time, xtest_status, time_point, train_data, test_data, features, models.indiv, ensemble = FALSE, models.ens = NULL, param.indiv = NULL, param.ens = NULL) {
   mat.train<- NULL
   mat.test<- NULL
+  simple.test <- NULL
   y.pred.train.all<- NULL
   y.pred.mat.all<- NULL
   xtrain_status <- outcome
@@ -1566,6 +1568,7 @@ surv_test_performance <- function(xtrain_time, outcome, xtest_time, xtest_status
       get(paste0("y.train_ts.", m, "_", f))
     }))
 
+    simple.test <- cbind(simple.test, foo2)
     foo2[foo2 < 0] <- 0
     foo2[foo2 > 1] <- 1
 
@@ -1720,7 +1723,7 @@ surv_test_performance <- function(xtrain_time, outcome, xtest_time, xtest_status
   }
 
   ########### simple avg ###############
-  y.pred.avg1.all<-apply(mat.test,1,mean)
+  y.pred.avg1.all <- rowMeans(simple.test)
 
   ########## predict on test set using ensemble ###########
   for (model_name in models.ens) {
