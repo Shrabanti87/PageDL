@@ -25,19 +25,19 @@ right R functions for a full analysis.
 | Goal | Recommended entry point |
 |---|---|
 | Understand the method | Read the workflow below and the main tutorial |
-| Try a small interactive example | Run `launch_caspen_demo()` |
+| Try a small interactive example | Run `launch_pagedl_demo()` |
 | Select pathways or pathway-celltypes | Use `pathway_select()` |
 | Select genes inside selected pathways | Use `gene_select()` |
 | Evaluate selected features by CV | Use `Train_perform_CV()` |
 | Evaluate an external cohort | Use `Test_perform()` |
-| Record model package versions | Use `caspen_model_info()` |
+| Record model package versions | Use `pagedl_model_info()` |
 
 ## Workflow
 
 ```{r workflow-figure, echo = FALSE, out.width = "100%"}
 workflow_figure <- c(
-  "../man/figures/caspen-workflow.svg",
-  "man/figures/caspen-workflow.svg"
+  "../man/figures/pagedl-workflow.svg",
+  "man/figures/pagedl-workflow.svg"
 )
 workflow_figure <- workflow_figure[file.exists(workflow_figure)][1]
 knitr::include_graphics(workflow_figure)
@@ -55,7 +55,7 @@ intended for live walkthroughs and uses small default iteration counts.
 
 ```{r shiny-demo, eval = FALSE}
 library(PageDL)
-launch_caspen_demo()
+launch_pagedl_demo()
 ```
 
 The demo app shows:
@@ -130,7 +130,7 @@ llm_res <- llm_literature_signatures(
 Before reporting results, record the model backends and versions:
 
 ```{r model-info, eval = FALSE}
-caspen_model_info()
+pagedl_model_info()
 ```
 
 Also report:
@@ -144,5 +144,5 @@ Also report:
 
 ## Next Steps
 
-Start with the [main tutorial](caspen-tutorial.html), then use the reference
+Start with the [main tutorial](pagedl-tutorial.html), then use the reference
 pages for function-level details.

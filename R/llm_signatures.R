@@ -37,7 +37,7 @@
 #' @param min.genes Minimum number of curated genes that must map to the input
 #' data for a new LLM-curated signature to be retained. Default is 5.
 #' @param provider LLM provider. Currently `"openai"` or `"custom"`.
-#' @param model OpenAI model name. Defaults to `CASPEN_OPENAI_MODEL` or
+#' @param model OpenAI model name. Defaults to `PAGEDL_OPENAI_MODEL` or
 #' `"gpt-4.1-mini"`.
 #' @param api.key OpenAI API key. Defaults to `OPENAI_API_KEY`.
 #' @param llm.fn Optional custom function accepting a prompt and returning text.
@@ -71,9 +71,9 @@
 #' \dontrun{
 #' # 1) Load example data and pathway definitions.
 #' library(PageDL)
-#' data(caspen_example)
+#' data(pagedl_example)
 #'
-#' pathways <- caspen_example$pathways[1:5]
+#' pathways <- pagedl_example$pathways[1:5]
 #'
 #' # 2) Score user-provided pathways with OpenAI.
 #' # Set this once per R session, or store it in ~/.Renviron.
@@ -171,8 +171,8 @@
 #' # 3) Use the prior weights during pathway selection.
 #' path_res <- pathway_select(
 #'   outcome.type = "binary",
-#'   outcome = caspen_example$outcome,
-#'   data = caspen_example$data_to_pass,
+#'   outcome = pagedl_example$outcome,
+#'   data = pagedl_example$data_to_pass,
 #'   features = pathways,
 #'   models.indiv = c("RF", "EN"),
 #'   iter = 5,
@@ -223,7 +223,7 @@ llm_literature_signatures <- function(disease, outcome.context,
                                       n.signatures = 10, max.genes = 80,
                                       min.genes = 5,
                                       provider = c("openai", "custom"),
-                                      model = Sys.getenv("CASPEN_OPENAI_MODEL", "gpt-4.1-mini"),
+                                      model = Sys.getenv("PAGEDL_OPENAI_MODEL", "gpt-4.1-mini"),
                                       api.key = Sys.getenv("OPENAI_API_KEY"),
                                       llm.fn = NULL,
                                       pubmed = TRUE, pubmed.max = 8,
@@ -252,9 +252,9 @@ llm_literature_signatures <- function(disease, outcome.context,
   if (!length(feature.names) && length(features)) {
     feature.names <- paste0("Pathway_", seq_along(features))
   }
-  input.gene.counts <- caspen_feature_gene_counts(features, feature.names)
+  input.gene.counts <- pagedl_feature_gene_counts(features, feature.names)
   needs.llm <- mode == "curate" || prior.method %in% c("llm", "hybrid")
-  hybrid.weights.normalized <- caspen_normalize_hybrid_weights(hybrid.weights)
+  hybrid.weights.normalized <- pagedl_normalize_hybrid_weights(hybrid.weights)
   pubmed.weight <- hybrid.weights.normalized[match("pubmed_count",
                                                    names(hybrid.weights.normalized))]
   if (!length(pubmed.weight)) pubmed.weight <- NA_real_
@@ -273,7 +273,7 @@ llm_literature_signatures <- function(disease, outcome.context,
        is.finite(pubtator.weight) && pubtator.weight > 0)
   )
   records <- if (isTRUE(pubmed) && isTRUE(needs.llm)) {
-    caspen_pubmed_retrieve(
+    pagedl_pubmed_retrieve(
       query = paste(disease, outcome.context, "gene signature pathway"),
       k = pubmed.max,
       email = email
@@ -283,7 +283,7 @@ llm_literature_signatures <- function(disease, outcome.context,
   }
 
   if (needs.llm) {
-    prompt <- caspen_llm_prompt(
+    prompt <- pagedl_llm_prompt(
       disease = disease,
       outcome.context = outcome.context,
       mode = mode,
@@ -298,17 +298,17 @@ llm_literature_signatures <- function(disease, outcome.context,
       llm.fn(prompt)
     } else {
       if (provider == "custom") stop("llm.fn must be supplied when provider = 'custom'.")
-      caspen_openai_response(prompt, model = model, api.key = api.key,
+      pagedl_openai_response(prompt, model = model, api.key = api.key,
                              temperature = temperature)
     }
-    parsed <- caspen_parse_llm_json(raw)
+    parsed <- pagedl_parse_llm_json(raw)
     signatures <- parsed$signatures
   } else {
     raw <- NA_character_
     signatures <- list()
   }
-  raw.signatures.all <- caspen_raw_signature_table(signatures, min.genes = 1)
-  raw.signatures <- caspen_raw_signature_table(signatures, min.genes = min.genes)
+  raw.signatures.all <- pagedl_raw_signature_table(signatures, min.genes = 1)
+  raw.signatures <- pagedl_raw_signature_table(signatures, min.genes = min.genes)
 
   if (mode == "prior" && prior.method %in% c("pubmed_count", "pubtator")) {
     signatures <- lapply(feature.names, function(nm) {
@@ -323,7 +323,7 @@ llm_literature_signatures <- function(disease, outcome.context,
   }, character(1)))
   signature.names <- signature.names[nzchar(signature.names)]
   pubmed.prior <- if (isTRUE(needs.pubmed.count) && length(signature.names)) {
-    caspen_pubmed_prior_scores(
+    pagedl_pubmed_prior_scores(
       disease = disease,
       outcome.context = outcome.context,
       pathway.names = signature.names,
@@ -334,7 +334,7 @@ llm_literature_signatures <- function(disease, outcome.context,
                pubmed.score = numeric(0), stringsAsFactors = FALSE)
   }
   pubtator.prior <- if (isTRUE(needs.pubtator) && length(signature.names)) {
-    caspen_pubtator_prior_scores(
+    pagedl_pubtator_prior_scores(
       disease = disease,
       outcome.context = outcome.context,
       features = features,
@@ -378,16 +378,16 @@ llm_literature_signatures <- function(disease, outcome.context,
       pubtator.row <- pubtator.prior[match(nm.out, pubtator.prior$pathway), , drop = FALSE]
       pubtator.count <- if (nrow(pubtator.row)) pubtator.row$pubtator.count else NA_real_
       pubtator.score <- if (nrow(pubtator.row)) pubtator.row$pubtator.score else NA_real_
-      celltype.score <- caspen_signature_score(sig, c("celltype_score",
+      celltype.score <- pagedl_signature_score(sig, c("celltype_score",
                                                       "celltype_relevance"))
-      evidence.score <- caspen_signature_score(sig, c("evidence_score",
+      evidence.score <- pagedl_signature_score(sig, c("evidence_score",
                                                       "evidence_quality",
                                                       "citation_strength"))
       if (!is.finite(evidence.score)) {
-        evidence.score <- caspen_pmid_evidence_score(sig$pmids %||% character(0))
+        evidence.score <- pagedl_pmid_evidence_score(sig$pmids %||% character(0))
       }
       prior.out <- if (mode %in% c("prior", "curate")) {
-        caspen_combine_prior_components(
+        pagedl_combine_prior_components(
           prior.method = prior.method,
           components = c(
             pubmed_count = unname(pubmed.score),
@@ -429,7 +429,7 @@ llm_literature_signatures <- function(disease, outcome.context,
   evidence <- if (length(evidence_rows)) do.call(rbind, evidence_rows) else data.frame()
 
   if (mode == "prior" && length(feature.names)) {
-    completed <- caspen_complete_prior_output(
+    completed <- pagedl_complete_prior_output(
       evidence = evidence,
       pathway.prior = pathway.prior,
       feature.names = feature.names,
@@ -459,7 +459,7 @@ llm_literature_signatures <- function(disease, outcome.context,
 
 #' @keywords internal
 #' @noRd
-caspen_pubmed_retrieve <- function(query, k = 8, email = NULL) {
+pagedl_pubmed_retrieve <- function(query, k = 8, email = NULL) {
   base <- "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
   search_url <- paste0(base, "esearch.fcgi")
   req <- httr2::request(search_url) |>
@@ -501,7 +501,7 @@ caspen_pubmed_retrieve <- function(query, k = 8, email = NULL) {
 
 #' @keywords internal
 #' @noRd
-caspen_pubmed_count <- function(query, email = NULL) {
+pagedl_pubmed_count <- function(query, email = NULL) {
   base <- "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
   req <- httr2::request(paste0(base, "esearch.fcgi")) |>
     httr2::req_url_query(
@@ -518,7 +518,7 @@ caspen_pubmed_count <- function(query, email = NULL) {
 
 #' @keywords internal
 #' @noRd
-caspen_pubmed_search_ids <- function(query, k = 20, email = NULL) {
+pagedl_pubmed_search_ids <- function(query, k = 20, email = NULL) {
   base <- "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
   req <- httr2::request(paste0(base, "esearch.fcgi")) |>
     httr2::req_url_query(
@@ -536,7 +536,7 @@ caspen_pubmed_search_ids <- function(query, k = 20, email = NULL) {
 
 #' @keywords internal
 #' @noRd
-caspen_pubmed_prior_scores <- function(disease, outcome.context, pathway.names,
+pagedl_pubmed_prior_scores <- function(disease, outcome.context, pathway.names,
                                        email = NULL) {
   pathway.names <- unique(as.character(pathway.names))
   pathway.names <- pathway.names[nzchar(pathway.names)]
@@ -547,9 +547,9 @@ caspen_pubmed_prior_scores <- function(disease, outcome.context, pathway.names,
   counts <- vapply(pathway.names, function(pathway) {
     pathway.term <- gsub("_+", " ", pathway)
     query <- paste(disease, outcome.context, pathway.term)
-    caspen_pubmed_count(query, email = email)
+    pagedl_pubmed_count(query, email = email)
   }, numeric(1))
-  scores <- caspen_normalize_counts(counts)
+  scores <- pagedl_normalize_counts(counts)
   data.frame(
     pathway = pathway.names,
     pubmed.count = as.numeric(counts),
@@ -560,7 +560,7 @@ caspen_pubmed_prior_scores <- function(disease, outcome.context, pathway.names,
 
 #' @keywords internal
 #' @noRd
-caspen_pubtator_export <- function(pmids) {
+pagedl_pubtator_export <- function(pmids) {
   pmids <- unique(as.character(pmids %||% character(0)))
   pmids <- pmids[nzchar(pmids)]
   if (!length(pmids)) return(NULL)
@@ -575,7 +575,7 @@ caspen_pubtator_export <- function(pmids) {
 
 #' @keywords internal
 #' @noRd
-caspen_pubtator_annotations <- function(x, pmid = NA_character_) {
+pagedl_pubtator_annotations <- function(x, pmid = NA_character_) {
   rows <- list()
   walk <- function(node, current.pmid = pmid) {
     if (is.null(node)) return(NULL)
@@ -608,14 +608,14 @@ caspen_pubtator_annotations <- function(x, pmid = NA_character_) {
 
 #' @keywords internal
 #' @noRd
-caspen_pubtator_query_count <- function(disease, outcome.context, feature.name,
+pagedl_pubtator_query_count <- function(disease, outcome.context, feature.name,
                                         genes = NULL, email = NULL,
                                         pubmed.max = 20) {
   feature.term <- gsub("_+", " ", feature.name)
   query <- paste(disease, outcome.context, feature.term)
-  pmids <- caspen_pubmed_search_ids(query, k = pubmed.max, email = email)
+  pmids <- pagedl_pubmed_search_ids(query, k = pubmed.max, email = email)
   if (!length(pmids)) return(0)
-  ann <- caspen_pubtator_annotations(caspen_pubtator_export(pmids))
+  ann <- pagedl_pubtator_annotations(pagedl_pubtator_export(pmids))
   if (!nrow(ann)) return(0)
   ann <- ann[tolower(ann$type) %in% c("gene", "genes", "protein"), , drop = FALSE]
   if (!nrow(ann)) return(0)
@@ -633,7 +633,7 @@ caspen_pubtator_query_count <- function(disease, outcome.context, feature.name,
 
 #' @keywords internal
 #' @noRd
-caspen_pubtator_prior_scores <- function(disease, outcome.context, features,
+pagedl_pubtator_prior_scores <- function(disease, outcome.context, features,
                                          pathway.names, email = NULL,
                                          pubmed.max = 20) {
   pathway.names <- unique(as.character(pathway.names))
@@ -642,9 +642,9 @@ caspen_pubtator_prior_scores <- function(disease, outcome.context, features,
     return(data.frame(pathway = character(0), pubtator.count = numeric(0),
                       pubtator.score = numeric(0), stringsAsFactors = FALSE))
   }
-  feature.genes <- caspen_feature_gene_map(features, pathway.names)
+  feature.genes <- pagedl_feature_gene_map(features, pathway.names)
   counts <- vapply(pathway.names, function(pathway) {
-    caspen_pubtator_query_count(
+    pagedl_pubtator_query_count(
       disease = disease,
       outcome.context = outcome.context,
       feature.name = pathway,
@@ -653,7 +653,7 @@ caspen_pubtator_prior_scores <- function(disease, outcome.context, features,
       pubmed.max = pubmed.max
     )
   }, numeric(1))
-  scores <- caspen_normalize_counts(counts)
+  scores <- pagedl_normalize_counts(counts)
   data.frame(
     pathway = pathway.names,
     pubtator.count = as.numeric(counts),
@@ -664,7 +664,7 @@ caspen_pubtator_prior_scores <- function(disease, outcome.context, features,
 
 #' @keywords internal
 #' @noRd
-caspen_normalize_counts <- function(counts) {
+pagedl_normalize_counts <- function(counts) {
   counts <- as.numeric(counts)
   out <- rep(NA_real_, length(counts))
   ok <- is.finite(counts) & counts >= 0
@@ -677,7 +677,7 @@ caspen_normalize_counts <- function(counts) {
 
 #' @keywords internal
 #' @noRd
-caspen_llm_prompt <- function(disease, outcome.context, mode, feature.names,
+pagedl_llm_prompt <- function(disease, outcome.context, mode, feature.names,
                               celltypes, records, n.signatures, max.genes,
                               min.genes = 5) {
   literature <- if (nrow(records)) {
@@ -720,7 +720,7 @@ caspen_llm_prompt <- function(disease, outcome.context, mode, feature.names,
 
 #' @keywords internal
 #' @noRd
-caspen_openai_response <- function(prompt, model, api.key, temperature = 0) {
+pagedl_openai_response <- function(prompt, model, api.key, temperature = 0) {
   if (!nzchar(api.key %||% "")) {
     stop("OPENAI_API_KEY is not set. Supply api.key or llm.fn, or set llm.mode = 'none'.")
   }
@@ -760,7 +760,7 @@ caspen_openai_response <- function(prompt, model, api.key, temperature = 0) {
 
 #' @keywords internal
 #' @noRd
-caspen_parse_llm_json <- function(raw) {
+pagedl_parse_llm_json <- function(raw) {
   raw <- trimws(as.character(raw %||% ""))
   raw <- sub("^```json\\s*", "", raw)
   raw <- sub("^```\\s*", "", raw)
@@ -801,7 +801,7 @@ caspen_parse_llm_json <- function(raw) {
 
 #' @keywords internal
 #' @noRd
-caspen_raw_signature_table <- function(signatures, min.genes = 1) {
+pagedl_raw_signature_table <- function(signatures, min.genes = 1) {
   if (!length(signatures)) {
     return(data.frame(
       signature.name = character(0),
@@ -818,13 +818,13 @@ caspen_raw_signature_table <- function(signatures, min.genes = 1) {
   rows <- lapply(signatures, function(sig) {
     genes <- clean_gene_symbols(sig$genes %||% character(0))
     data.frame(
-      signature.name = caspen_display_signature_name(sig$name),
+      signature.name = pagedl_display_signature_name(sig$name),
       genes = paste(genes, collapse = ", "),
       n.genes = length(genes),
       llm.weight = suppressWarnings(as.numeric(sig$prior %||% NA_real_)),
-      celltype.score = caspen_signature_score(sig, c("celltype_score",
+      celltype.score = pagedl_signature_score(sig, c("celltype_score",
                                                      "celltype_relevance")),
-      evidence.score = caspen_signature_score(sig, c("evidence_score",
+      evidence.score = pagedl_signature_score(sig, c("evidence_score",
                                                      "evidence_quality",
                                                      "citation_strength")),
       pmids = paste(as.character(sig$pmids %||% character(0)), collapse = ";"),
@@ -847,7 +847,7 @@ clean_signature_name <- function(x) {
 
 #' @keywords internal
 #' @noRd
-caspen_display_signature_name <- function(x) {
+pagedl_display_signature_name <- function(x) {
   x <- clean_signature_name(x)
   x <- gsub("^(signature|signatures|pathway|pathways|geneset|genesets)_+", "",
             x, ignore.case = TRUE)
@@ -909,7 +909,7 @@ clean_gene_symbols <- function(x) {
 
 #' @keywords internal
 #' @noRd
-caspen_signature_score <- function(sig, fields) {
+pagedl_signature_score <- function(sig, fields) {
   for (field in fields) {
     value <- sig[[field]]
     if (!is.null(value)) {
@@ -922,7 +922,7 @@ caspen_signature_score <- function(sig, fields) {
 
 #' @keywords internal
 #' @noRd
-caspen_pmid_evidence_score <- function(pmids) {
+pagedl_pmid_evidence_score <- function(pmids) {
   pmids <- unique(as.character(pmids %||% character(0)))
   pmids <- pmids[nzchar(pmids)]
   if (!length(pmids)) return(NA_real_)
@@ -931,7 +931,7 @@ caspen_pmid_evidence_score <- function(pmids) {
 
 #' @keywords internal
 #' @noRd
-caspen_complete_prior_output <- function(evidence, pathway.prior, feature.names,
+pagedl_complete_prior_output <- function(evidence, pathway.prior, feature.names,
                                          input.gene.counts = numeric(0),
                                          prior.method = NA_character_) {
   feature.names <- unique(as.character(feature.names %||% character(0)))
@@ -983,11 +983,11 @@ caspen_complete_prior_output <- function(evidence, pathway.prior, feature.names,
         llm.name = "",
         duplicate.of.user.pathway = TRUE,
         prior = unname(pathway.prior[[nm]] %||% NA_real_),
-        n.genes = caspen_evidence_gene_count(
+        n.genes = pagedl_evidence_gene_count(
           nm, character(0), input.gene.counts, use.input = TRUE
         ),
         n.llm.genes = NA_integer_,
-        n.mapped.genes = caspen_evidence_gene_count(
+        n.mapped.genes = pagedl_evidence_gene_count(
           nm, character(0), input.gene.counts, use.input = TRUE
         ),
         mapped.genes = "",
@@ -1012,7 +1012,7 @@ caspen_complete_prior_output <- function(evidence, pathway.prior, feature.names,
 
 #' @keywords internal
 #' @noRd
-caspen_combine_prior_components <- function(prior.method, components,
+pagedl_combine_prior_components <- function(prior.method, components,
                                             hybrid.weights = c(pubmed_count = 0.5,
                                                                llm = 0.5)) {
   component.names <- names(components)
@@ -1034,7 +1034,7 @@ caspen_combine_prior_components <- function(prior.method, components,
     return(get_component("pubtator"))
   }
 
-  weights <- caspen_normalize_hybrid_weights(hybrid.weights)
+  weights <- pagedl_normalize_hybrid_weights(hybrid.weights)
   common <- intersect(names(weights), names(components))
   common <- common[is.finite(components[common]) & is.finite(weights[common]) &
                      weights[common] > 0]
@@ -1044,7 +1044,7 @@ caspen_combine_prior_components <- function(prior.method, components,
 
 #' @keywords internal
 #' @noRd
-caspen_normalize_hybrid_weights <- function(weights) {
+pagedl_normalize_hybrid_weights <- function(weights) {
   if (is.null(weights) || !length(weights)) {
     weights <- c(pubmed_count = 0.5, llm = 0.5)
   }
@@ -1067,7 +1067,7 @@ caspen_normalize_hybrid_weights <- function(weights) {
 
 #' @keywords internal
 #' @noRd
-caspen_feature_gene_counts <- function(features, feature.names) {
+pagedl_feature_gene_counts <- function(features, feature.names) {
   if (is.null(features) || !length(features)) return(numeric(0))
   if (!length(feature.names)) feature.names <- paste0("Pathway_", seq_along(features))
   counts <- vapply(features, function(x) {
@@ -1082,7 +1082,7 @@ caspen_feature_gene_counts <- function(features, feature.names) {
 
 #' @keywords internal
 #' @noRd
-caspen_feature_gene_map <- function(features, feature.names) {
+pagedl_feature_gene_map <- function(features, feature.names) {
   out <- stats::setNames(vector("list", length(feature.names)), feature.names)
   if (is.null(features) || !length(features)) return(out)
   original.names <- names(features)
@@ -1103,7 +1103,7 @@ caspen_feature_gene_map <- function(features, feature.names) {
 
 #' @keywords internal
 #' @noRd
-caspen_evidence_gene_count <- function(pathway.name, genes, input.gene.counts,
+pagedl_evidence_gene_count <- function(pathway.name, genes, input.gene.counts,
                                        use.input = FALSE) {
   if (isTRUE(use.input) && length(input.gene.counts)) {
     hit <- if (pathway.name %in% names(input.gene.counts)) {

@@ -48,13 +48,13 @@
 #'
 #' @examples
 #' \dontrun{
-#' data(caspen_example)
+#' data(pagedl_example)
 #'
 #' gene_train <- Gene_Train_perform_CV(
 #'   outcome.type = "binary",
-#'   outcome = caspen_example$outcome,
-#'   train_data = caspen_example$data_to_pass,
-#'   genes = colnames(caspen_example$data_to_pass)[1:40],
+#'   outcome = pagedl_example$outcome,
+#'   train_data = pagedl_example$data_to_pass,
+#'   genes = colnames(pagedl_example$data_to_pass)[1:40],
 #'   models.indiv = c("RF", "EN", "XG"),
 #'   iter = 5,
 #'   num.folds = 3,
@@ -62,8 +62,7 @@
 #'   models.ens = c("RF", "EN", "XG")
 #' )
 #'
-#' gene_train$auc
-#' gene_train$SP.95
+#' gene_train[, c("model", "auc", "sp95")]
 #' }
 #'
 #' @export
@@ -85,9 +84,9 @@ Gene_Train_perform_CV <- function(outcome.type, outcome, survdays = NULL,
                                   future.seed = NULL,
                                   future.strategy = "multisession",
                                   suppress.model.warnings = TRUE) {
-  models.indiv <- caspen_default_models_for_outcome(outcome.type, models.indiv)
+  models.indiv <- pagedl_default_models_for_outcome(outcome.type, models.indiv)
   if (isTRUE(ensemble) && is.null(models.ens)) models.ens <- models.indiv
-  features <- caspen_gene_level_features(train_data = train_data, genes = genes)
+  features <- pagedl_gene_level_features(train_data = train_data, genes = genes)
   res <- Train_perform_CV(
     outcome.type = outcome.type,
     outcome = outcome,
@@ -161,24 +160,23 @@ Gene_Train_perform_CV <- function(outcome.type, outcome, survdays = NULL,
 #'
 #' @examples
 #' \dontrun{
-#' data(caspen_example)
-#' data(caspen_test_example)
+#' data(pagedl_example)
+#' data(pagedl_test_example)
 #'
-#' genes <- colnames(caspen_example$data_to_pass)[1:40]
+#' genes <- colnames(pagedl_example$data_to_pass)[1:40]
 #' gene_test <- Gene_Test_perform(
 #'   outcome.type = "binary",
-#'   outcome = caspen_example$outcome,
-#'   train_data = caspen_example$data_to_pass,
-#'   test_data = caspen_test_example$test_data,
-#'   test_outcome = caspen_test_example$test_outcome,
+#'   outcome = pagedl_example$outcome,
+#'   train_data = pagedl_example$data_to_pass,
+#'   test_data = pagedl_test_example$test_data,
+#'   test_outcome = pagedl_test_example$test_outcome,
 #'   genes = genes,
 #'   models.indiv = c("RF", "EN", "XG"),
 #'   ensemble = TRUE,
 #'   models.ens = c("RF", "EN", "XG")
 #' )
 #'
-#' gene_test$auc
-#' gene_test$SP.95
+#' gene_test[, c("model", "auc", "sp95")]
 #' }
 #'
 #' @export
@@ -196,9 +194,9 @@ Gene_Test_perform <- function(outcome.type, outcome, survdays = NULL,
                               tune.iter = 1,
                               tune.models = NULL,
                               suppress.model.warnings = TRUE) {
-  models.indiv <- caspen_default_models_for_outcome(outcome.type, models.indiv)
+  models.indiv <- pagedl_default_models_for_outcome(outcome.type, models.indiv)
   if (isTRUE(ensemble) && is.null(models.ens)) models.ens <- models.indiv
-  features <- caspen_gene_level_features(
+  features <- pagedl_gene_level_features(
     train_data = train_data,
     test_data = test_data,
     genes = genes
@@ -233,7 +231,7 @@ Gene_Test_perform <- function(outcome.type, outcome, survdays = NULL,
 
 #' @keywords internal
 #' @noRd
-caspen_gene_level_features <- function(train_data, test_data = NULL,
+pagedl_gene_level_features <- function(train_data, test_data = NULL,
                                        genes = NULL,
                                        feature.name = "All_genes") {
   train_cols <- colnames(train_data)
@@ -260,7 +258,7 @@ caspen_gene_level_features <- function(train_data, test_data = NULL,
 
 #' @keywords internal
 #' @noRd
-caspen_default_models_for_outcome <- function(outcome.type, models = NULL) {
+pagedl_default_models_for_outcome <- function(outcome.type, models = NULL) {
   if (!is.null(models)) return(toupper(models))
   type_out <- tolower(outcome.type)
   switch(

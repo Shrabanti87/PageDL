@@ -55,7 +55,7 @@
 #' `llm.mode != "none"`.
 #' @param llm.provider LLM provider passed to `llm_literature_signatures()`.
 #' Currently `"openai"` or `"custom"`.
-#' @param llm.model OpenAI model name. Defaults to `CASPEN_OPENAI_MODEL` or
+#' @param llm.model OpenAI model name. Defaults to `PAGEDL_OPENAI_MODEL` or
 #' `"gpt-4.1-mini"`.
 #' @param llm.api.key OpenAI API key. Defaults to `OPENAI_API_KEY`.
 #' @param llm.fn Optional custom LLM function accepting a prompt and returning
@@ -205,10 +205,10 @@
 #' # -------------------------------------------------------------------------
 #' # Minimal binary pathway-selection example
 #' # -------------------------------------------------------------------------
-#' data(caspen_example)
-#' data_to_pass <- caspen_example$data_to_pass
-#' output <- caspen_example$outcome
-#' dq <- caspen_example$pathways
+#' data(pagedl_example)
+#' data_to_pass <- pagedl_example$data_to_pass
+#' output <- pagedl_example$outcome
+#' dq <- pagedl_example$pathways
 #'
 #' AUC.mat <- pathway_select(
 #'   outcome.type = "binary",
@@ -413,7 +413,7 @@ pathway_select <- function(outcome.type, outcome, features, data, models.indiv, 
                            disease = NULL,
                            outcome.context = NULL,
                            llm.provider = c("openai", "custom"),
-                           llm.model = Sys.getenv("CASPEN_OPENAI_MODEL", "gpt-4.1-mini"),
+                           llm.model = Sys.getenv("PAGEDL_OPENAI_MODEL", "gpt-4.1-mini"),
                            llm.api.key = Sys.getenv("OPENAI_API_KEY"),
                            llm.fn = NULL,
                            llm.n.signatures = 10,
@@ -499,7 +499,7 @@ pathway_select <- function(outcome.type, outcome, features, data, models.indiv, 
     )
     if (llm.mode == "curate" &&
         llm.curate.action == "match_pathways") {
-      matched <- caspen_match_curated_concepts(features, llm.result)
+      matched <- pagedl_match_curated_concepts(features, llm.result)
       llm.concept.map <- matched$map
       if (!is.null(llm.concept.map) && nrow(llm.concept.map)) {
         features <- matched$features
@@ -559,7 +559,7 @@ pathway_select <- function(outcome.type, outcome, features, data, models.indiv, 
     tuned.param.indiv <- param.indiv
     tuning.table <- NULL
     if (isTRUE(auto.tune) && ncol(data_to_pass) > 0) {
-      tuned <- caspen_auto_tune_params(
+      tuned <- pagedl_auto_tune_params(
         outcome.type = type_out,
         outcome = outcome,
         x = data_to_pass,

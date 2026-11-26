@@ -105,7 +105,7 @@ library(PageDL)
 Check model backend versions:
 
 ```r
-caspen_model_info()
+pagedl_model_info()
 ```
 
 ## Main Functions
@@ -122,7 +122,7 @@ caspen_model_info()
 - `plot_pathway_selection()`: plot AUC/C-index by SP95.
 - `plot_gene_selection()`: plot gene-selection ranking/stability.
 - `plot_roc_curve()`: plot ROC curves.
-- `launch_caspen_demo()`: open the bundled Shiny demo.
+- `launch_pagedl_demo()`: open the bundled Shiny demo.
 
 ## Supported Model Abbreviations
 
@@ -148,15 +148,15 @@ Ensemble outputs use names such as `RF.ens`, `SVM.ens`, `XG.ens`,
 PageDL includes small example datasets for package demos:
 
 ```r
-data(caspen_example)
-data(caspen_test_example)
+data(pagedl_example)
+data(pagedl_test_example)
 
-x <- caspen_example$data_to_pass
-y <- caspen_example$outcome
-pathways <- caspen_example$pathways
+x <- pagedl_example$data_to_pass
+y <- pagedl_example$outcome
+pathways <- pagedl_example$pathways
 
-test_x <- caspen_test_example$data_to_pass
-test_y <- caspen_test_example$outcome
+test_x <- pagedl_test_example$test_data
+test_y <- pagedl_test_example$test_outcome
 ```
 
 Expected input format:
@@ -271,7 +271,7 @@ surv_res <- pathway_select(
   models.ens = c("RF", "EN")
 )
 
-surv_res$cindex
+surv_res$C.index
 surv_res$SP.95
 ```
 
@@ -568,6 +568,9 @@ head(gene_cont$ranking)
 
 ## 8. Training CV And Independent Test Performance
 
+Pass the selected pathway list in a single call to combine the pathway
+predictions. These examples report one row per ensemble model.
+
 ```r
 train_res <- Train_perform_CV(
   outcome.type = "binary",
@@ -581,8 +584,7 @@ train_res <- Train_perform_CV(
   models.ens = c("RF", "EN")
 )
 
-train_res$auc
-train_res$SP.95
+train_res[, c("model", "auc", "sp95")]
 ```
 
 Independent test set:
@@ -600,8 +602,7 @@ test_res <- Test_perform(
   models.ens = c("RF", "EN")
 )
 
-test_res$auc
-test_res$SP.95
+test_res[, c("model", "auc", "sp95")]
 ```
 
 Gene-level training/test performance:
@@ -624,8 +625,7 @@ gene_train_res <- Gene_Train_perform_CV(
   num.folds = 3
 )
 
-gene_train_res$auc
-gene_train_res$SP.95
+gene_train_res[, c("model", "auc", "sp95")]
 
 gene_test_res <- Gene_Test_perform(
   outcome.type = "binary",
@@ -636,8 +636,7 @@ gene_test_res <- Gene_Test_perform(
   genes = selected_genes
 )
 
-gene_test_res$auc
-gene_test_res$SP.95
+gene_test_res[, c("model", "auc", "sp95")]
 ```
 
 Continuous training/test examples:
@@ -719,7 +718,7 @@ walkthroughs:
 
 ```r
 library(PageDL)
-launch_caspen_demo()
+launch_pagedl_demo()
 ```
 
 The app demonstrates pathway selection, gene selection, training/test

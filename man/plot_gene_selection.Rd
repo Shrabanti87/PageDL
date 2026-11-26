@@ -37,13 +37,13 @@ Draws the gene-level selection scatter from a \code{gene_select()} result.
 }
 \examples{
 \dontrun{
-data(caspen_example)
+data(pagedl_example)
 
 gene_res <- gene_select(
   outcome.type = "binary",
-  outcome = caspen_example$outcome,
-  data = caspen_example$data_to_pass,
-  features = caspen_example$pathways[1],
+  outcome = pagedl_example$outcome,
+  data = pagedl_example$data_to_pass,
+  features = pagedl_example$pathways[1],
   models = c("RF", "EN", "DCT"),
   iter = 3,
   num.folds = 3,

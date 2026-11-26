@@ -307,7 +307,7 @@ pool_pathway_features <- function(features, literature.features = NULL,
 
 #' @keywords internal
 #' @noRd
-caspen_concept_tokens <- function(x) {
+pagedl_concept_tokens <- function(x) {
   x <- tolower(clean_signature_name(x))
   x <- gsub("^(signature|signatures|pathway|pathways|geneset|genesets)_+", "", x)
   x <- gsub("_+(signature|signatures|pathway|pathways|geneset|genesets)$", "", x)
@@ -320,7 +320,7 @@ caspen_concept_tokens <- function(x) {
 
 #' @keywords internal
 #' @noRd
-caspen_match_curated_concepts <- function(features, llm.result,
+pagedl_match_curated_concepts <- function(features, llm.result,
                                           min.token.overlap = 1,
                                           min.jaccard = 0.05) {
   if (is.null(features) || !length(features) || is.null(llm.result)) {
@@ -342,8 +342,8 @@ caspen_match_curated_concepts <- function(features, llm.result,
     return(list(features = features, map = data.frame()))
   }
 
-  feature.tokens <- lapply(names(features), caspen_concept_tokens)
-  concept.tokens <- lapply(concept.names, caspen_concept_tokens)
+  feature.tokens <- lapply(names(features), pagedl_concept_tokens)
+  concept.tokens <- lapply(concept.names, pagedl_concept_tokens)
   keep <- logical(length(features))
   rows <- list()
   for (i in seq_along(features)) {
@@ -833,7 +833,7 @@ run_train_performance_iterations <- function(perf.fun, iter,
 
 #' @keywords internal
 #' @noRd
-caspen_tune_space <- function(model, outcome.type, n, p) {
+pagedl_tune_space <- function(model, outcome.type, n, p) {
   model <- toupper(model)
   small_nrounds <- if (n < 100) c(50, 100, 150) else c(75, 150, 250)
   mtry_vals <- unique(pmax(1, round(c(sqrt(p), p / 3, p / 2))))
@@ -893,7 +893,7 @@ caspen_tune_space <- function(model, outcome.type, n, p) {
 
 #' @keywords internal
 #' @noRd
-caspen_candidate_grid <- function(space, tune.method = "random", tune.n = 5,
+pagedl_candidate_grid <- function(space, tune.method = "random", tune.n = 5,
                                   seed = NULL) {
   if (!length(space)) return(list(list()))
   tune.method <- match.arg(tune.method,
@@ -930,7 +930,7 @@ caspen_candidate_grid <- function(space, tune.method = "random", tune.n = 5,
 
 #' @keywords internal
 #' @noRd
-caspen_metric_score <- function(outcome.type, outcome, pred, survdays = NULL,
+pagedl_metric_score <- function(outcome.type, outcome, pred, survdays = NULL,
                                 continuous.metric = "r2") {
   outcome.type <- tolower(outcome.type)
   pred <- as.numeric(pred)
@@ -959,15 +959,15 @@ caspen_metric_score <- function(outcome.type, outcome, pred, survdays = NULL,
 
 #' @keywords internal
 #' @noRd
-caspen_tune_model <- function(outcome.type, outcome, x, model, base.params = list(),
+pagedl_tune_model <- function(outcome.type, outcome, x, model, base.params = list(),
                               tune.method = "random", tune.n = 5,
                               tune.folds = 3, tune.iter = 1,
                               survdays = NULL, time_point = NULL,
                               continuous.metric = "r2", seed = 1) {
   model <- toupper(model)
   x <- as.data.frame(x, check.names = FALSE)
-  space <- caspen_tune_space(model, tolower(outcome.type), nrow(x), ncol(x))
-  candidates <- c(list(list()), caspen_candidate_grid(space, tune.method, tune.n, seed))
+  space <- pagedl_tune_space(model, tolower(outcome.type), nrow(x), ncol(x))
+  candidates <- c(list(list()), pagedl_candidate_grid(space, tune.method, tune.n, seed))
   if (!length(candidates)) candidates <- list(list())
   rows <- vector("list", length(candidates))
   scores <- rep(NA_real_, length(candidates))
@@ -978,20 +978,20 @@ caspen_tune_model <- function(outcome.type, outcome, x, model, base.params = lis
         res <- binary_model(outcome, x, model, iter = tune.iter,
                             num.folds = tune.folds, ensemble = FALSE,
                             param.indiv = stats::setNames(list(cand), model))
-        caspen_metric_score("binary", rep(outcome, tune.iter),
+        pagedl_metric_score("binary", rep(outcome, tune.iter),
                             res$individual[[model]])
       } else if (tolower(outcome.type) == "survival") {
         res <- survival_model(outcome, survdays, x, model, iter = tune.iter,
                               num.folds = tune.folds, ensemble = FALSE,
                               time_point = time_point,
                               param.indiv = stats::setNames(list(cand), model))
-        caspen_metric_score("survival", rep(outcome, tune.iter),
+        pagedl_metric_score("survival", rep(outcome, tune.iter),
                             res$individual[[model]], rep(survdays, tune.iter))
       } else if (tolower(outcome.type) == "continuous") {
         res <- continuous_model(outcome, x, model, iter = tune.iter,
                                 num.folds = tune.folds, ensemble = FALSE,
                                 param.indiv = stats::setNames(list(cand), model))
-        caspen_metric_score("continuous", rep(outcome, tune.iter),
+        pagedl_metric_score("continuous", rep(outcome, tune.iter),
                             res$individual[[model]],
                             continuous.metric = continuous.metric)
       } else {
@@ -999,7 +999,7 @@ caspen_tune_model <- function(outcome.type, outcome, x, model, base.params = lis
                                  num.folds = tune.folds, ensemble = FALSE,
                                  param.indiv = stats::setNames(list(cand), model))
         pred <- res$individual[[model]]
-        caspen_metric_score("categorical", rep(outcome, tune.iter), pred)
+        pagedl_metric_score("categorical", rep(outcome, tune.iter), pred)
       }
     }, error = function(e) NA_real_)
     scores[i] <- score
@@ -1022,7 +1022,7 @@ caspen_tune_model <- function(outcome.type, outcome, x, model, base.params = lis
 
 #' @keywords internal
 #' @noRd
-caspen_auto_tune_params <- function(outcome.type, outcome, x, models,
+pagedl_auto_tune_params <- function(outcome.type, outcome, x, models,
                                     param.indiv = NULL,
                                     tune.method = "random", tune.n = 5,
                                     tune.folds = 3, tune.iter = 1,
@@ -1039,7 +1039,7 @@ caspen_auto_tune_params <- function(outcome.type, outcome, x, models,
   for (model in tune.models) {
     message("Auto-tuning ", model, " with ", tune.n,
             " candidate setting(s).")
-    fit <- caspen_tune_model(
+    fit <- pagedl_tune_model(
       outcome.type = outcome.type,
       outcome = outcome,
       x = x,

@@ -22,10 +22,10 @@ navbar:
       href: index.html
     intro:
       text: Tutorial
-      href: articles/caspen-tutorial.html
+      href: articles/pagedl-tutorial.html
     demo:
       text: Demo
-      href: articles/caspen-portal.html
+      href: articles/pagedl-portal.html
     reference:
       text: Reference
       href: reference/index.html
@@ -33,9 +33,9 @@ navbar:
       text: Articles
       menu:
       - text: Portal and Shiny demo
-        href: articles/caspen-portal.html
+        href: articles/pagedl-portal.html
       - text: PageDL tutorial
-        href: articles/caspen-tutorial.html
+        href: articles/pagedl-tutorial.html
     github:
       icon: fa-github
       href: https://github.com/Shrabanti87/PageDL
@@ -45,8 +45,8 @@ reference:
 - title: Package and demo
   contents:
   - PageDL-package
-  - caspen_model_info
-  - launch_caspen_demo
+  - pagedl_model_info
+  - launch_pagedl_demo
 - title: Pathway and gene selection
   contents:
   - pathway_select
@@ -56,6 +56,8 @@ reference:
   contents:
   - Train_perform_CV
   - Test_perform
+  - Gene_Train_perform_CV
+  - Gene_Test_perform
 - title: Plotting
   contents:
   - plot_pathway_selection
@@ -63,11 +65,12 @@ reference:
   - plot_roc_curve
 - title: Example data
   contents:
-  - caspen_example
+  - pagedl_example
+  - pagedl_test_example
 
 articles:
 - title: Tutorials
   navbar: ~
   contents:
-  - caspen-portal
-  - caspen-tutorial
+  - pagedl-portal
+  - pagedl-tutorial

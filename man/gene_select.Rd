@@ -35,7 +35,7 @@ gene_select(
   disease = NULL,
   outcome.context = NULL,
   llm.provider = c("openai", "custom"),
-  llm.model = Sys.getenv("CASPEN_OPENAI_MODEL", "gpt-4.1-mini"),
+  llm.model = Sys.getenv("PAGEDL_OPENAI_MODEL", "gpt-4.1-mini"),
   llm.api.key = Sys.getenv("OPENAI_API_KEY"),
   llm.fn = NULL,
   llm.pubmed = FALSE,
@@ -167,12 +167,12 @@ percentile.
 # -------------------------------------------------------------------------
 # Basic gene selection inside selected pathways
 # -------------------------------------------------------------------------
-data(caspen_example)
+data(pagedl_example)
 gs <- gene_select(
   outcome.type = "binary",
-  outcome = caspen_example$outcome,
-  data = caspen_example$data_to_pass,
-  features = caspen_example$pathways[1],
+  outcome = pagedl_example$outcome,
+  data = pagedl_example$data_to_pass,
+  features = pagedl_example$pathways[1],
   models = c("RF", "EN", "DCT"),
   iter = 1,
   num.folds = 2,
@@ -190,9 +190,9 @@ gs$settings
 # -----------------------------------------------------------------------
 path_res <- pathway_select(
   outcome.type = "binary",
-  outcome = caspen_example$outcome,
-  data = caspen_example$data_to_pass,
-  features = caspen_example$pathways[1:10],
+  outcome = pagedl_example$outcome,
+  data = pagedl_example$data_to_pass,
+  features = pagedl_example$pathways[1:10],
   models.indiv = c("RF", "EN", "DCT"),
   iter = 10,
   num.folds = 3,
@@ -204,8 +204,8 @@ selected_pathways <- path_res$features
 
 gene_res <- gene_select(
   outcome.type = "binary",
-  outcome = caspen_example$outcome,
-  data = caspen_example$data_to_pass,
+  outcome = pagedl_example$outcome,
+  data = pagedl_example$data_to_pass,
   features = selected_pathways,
   models = c("RF", "GB", "EN", "DCT"),
   iter = 10,
@@ -228,9 +228,9 @@ head(gene_res$ranking)
 # support side by side.
 gene_pubmed <- gene_select(
   outcome.type = "binary",
-  outcome = caspen_example$outcome,
-  data = caspen_example$data_to_pass,
-  features = caspen_example$pathways[1:2],
+  outcome = pagedl_example$outcome,
+  data = pagedl_example$data_to_pass,
+  features = pagedl_example$pathways[1:2],
   models = c("RF", "EN", "DCT"),
   iter = 5,
   num.folds = 3,
@@ -248,9 +248,9 @@ gene_pubmed$ranking[, c("pathway", "gene", "median_percentile",
 # PubTator3 gene priors use PubMed IDs plus PubTator gene annotations.
 gene_pubtator <- gene_select(
   outcome.type = "binary",
-  outcome = caspen_example$outcome,
-  data = caspen_example$data_to_pass,
-  features = caspen_example$pathways[1:2],
+  outcome = pagedl_example$outcome,
+  data = pagedl_example$data_to_pass,
+  features = pagedl_example$pathways[1:2],
   models = c("RF", "EN", "DCT"),
   iter = 5,
   num.folds = 3,
@@ -272,9 +272,9 @@ Sys.setenv(OPENAI_API_KEY = "sk-proj-your_real_key_here")
 
 gene_hybrid <- gene_select(
   outcome.type = "binary",
-  outcome = caspen_example$outcome,
-  data = caspen_example$data_to_pass,
-  features = caspen_example$pathways[1:2],
+  outcome = pagedl_example$outcome,
+  data = pagedl_example$data_to_pass,
+  features = pagedl_example$pathways[1:2],
   models = c("RF", "GB", "EN", "DCT"),
   iter = 5,
   num.folds = 3,
@@ -322,9 +322,9 @@ ollama_llm <- function(prompt) {
 
 gene_ollama <- gene_select(
   outcome.type = "binary",
-  outcome = caspen_example$outcome,
-  data = caspen_example$data_to_pass,
-  features = caspen_example$pathways[1:2],
+  outcome = pagedl_example$outcome,
+  data = pagedl_example$data_to_pass,
+  features = pagedl_example$pathways[1:2],
   models = c("RF", "EN", "DCT"),
   iter = 5,
   num.folds = 3,

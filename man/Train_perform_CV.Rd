@@ -109,13 +109,13 @@ algorithms used during the training stage.
 # -----------------------------------------------------------------------
 # 1) Select pathways first
 # -----------------------------------------------------------------------
-data(caspen_example)
+data(pagedl_example)
 
 path_res <- pathway_select(
   outcome.type = "binary",
-  outcome = caspen_example$outcome,
-  data = caspen_example$data_to_pass,
-  features = caspen_example$pathways[1:10],
+  outcome = pagedl_example$outcome,
+  data = pagedl_example$data_to_pass,
+  features = pagedl_example$pathways[1:10],
   models.indiv = c("RF", "EN", "SVM"),
   iter = 5,
   num.folds = 3,
@@ -130,8 +130,8 @@ selected_features <- path_res$features
 # -----------------------------------------------------------------------
 train_res <- Train_perform_CV(
   outcome.type = "binary",
-  outcome = caspen_example$outcome,
-  train_data = caspen_example$data_to_pass,
+  outcome = pagedl_example$outcome,
+  train_data = pagedl_example$data_to_pass,
   features = selected_features,
   models.indiv = c("RF", "EN", "SVM"),
   iter = 10,
@@ -140,23 +140,22 @@ train_res <- Train_perform_CV(
   parallel.iter = TRUE
 )
 
-train_res$auc
-train_res$SP.95
+train_res[, c("model", "auc", "sp95")]
 
 # -----------------------------------------------------------------------
 # Survival example
 # -----------------------------------------------------------------------
 set.seed(1)
-survival_time <- sample(120:1800, nrow(caspen_example$data_to_pass),
+survival_time <- sample(120:1800, nrow(pagedl_example$data_to_pass),
                         replace = TRUE)
-survival_status <- caspen_example$outcome
+survival_status <- pagedl_example$outcome
 
 surv_train <- Train_perform_CV(
   outcome.type = "survival",
   outcome = survival_status,
   survdays = survival_time,
   time_point = 365,
-  train_data = caspen_example$data_to_pass,
+  train_data = pagedl_example$data_to_pass,
   features = selected_features,
   models.indiv = c("RF", "EN", "DCT"),
   iter = 10,
@@ -164,8 +163,7 @@ surv_train <- Train_perform_CV(
   models.ens = c("RF", "EN")
 )
 
-surv_train$C.index
-surv_train$SP.95
+surv_train[, c("model", "cindex", "auc", "sp95")]
 }
 
 }

@@ -41,20 +41,20 @@
 #' # -----------------------------------------------------------------------
 #' # Independent test-set evaluation
 #' # -----------------------------------------------------------------------
-#' data(caspen_example)
+#' data(pagedl_example)
 #'
-#' data(caspen_test_example)
+#' data(pagedl_test_example)
 #'
-#' train_x <- caspen_example$data_to_pass
-#' train_y <- caspen_example$outcome
-#' test_x <- caspen_test_example$test_data
-#' test_y <- caspen_test_example$test_outcome
+#' train_x <- pagedl_example$data_to_pass
+#' train_y <- pagedl_example$outcome
+#' test_x <- pagedl_test_example$test_data
+#' test_y <- pagedl_test_example$test_outcome
 #'
 #' path_res <- pathway_select(
 #'   outcome.type = "binary",
 #'   outcome = train_y,
 #'   data = train_x,
-#'   features = caspen_example$pathways[1:10],
+#'   features = pagedl_example$pathways[1:10],
 #'   models.indiv = c("RF", "EN", "SVM"),
 #'   iter = 5,
 #'   num.folds = 3,
@@ -76,15 +76,14 @@
 #'   models.ens = c("RF", "EN", "SVM")
 #' )
 #'
-#' test_res$auc
-#' test_res$SP.95
+#' test_res[, c("model", "auc", "sp95")]
 #'
 #' # For survival, also supply survival time and time_point.
 #' set.seed(2)
-#' survival_time <- sample(120:1800, nrow(caspen_example$data_to_pass),
+#' survival_time <- sample(120:1800, nrow(pagedl_example$data_to_pass),
 #'                         replace = TRUE)
-#' survival_status <- caspen_example$outcome
-#' test_survival_time <- sample(120:1800, nrow(caspen_test_example$test_data),
+#' survival_status <- pagedl_example$outcome
+#' test_survival_time <- sample(120:1800, nrow(pagedl_test_example$test_data),
 #'                              replace = TRUE)
 #'
 #' surv_test_res <- Test_perform(
@@ -102,8 +101,7 @@
 #'   models.ens = c("RF", "EN")
 #' )
 #'
-#' surv_test_res$C.index
-#' surv_test_res$SP.95
+#' surv_test_res[, c("model", "cindex", "auc", "sp95")]
 #' }
 #'
 #' @export
@@ -131,7 +129,7 @@ Test_perform <- function(outcome.type, outcome, survdays = NULL, time_point = NU
     tune.genes <- unique(unlist(lapply(features, extract_pathway_genes)))
     tune.genes <- tune.genes[tune.genes %in% colnames(train_data)]
     if (length(tune.genes)) {
-      tuned <- run_fit(caspen_auto_tune_params(
+      tuned <- run_fit(pagedl_auto_tune_params(
         outcome.type = type_out,
         outcome = outcome,
         x = train_data[, tune.genes, drop = FALSE],

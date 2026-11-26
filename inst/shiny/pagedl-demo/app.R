@@ -4,10 +4,10 @@ library(PageDL)
 
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
-data(caspen_example, package = "PageDL")
-demo_data <- caspen_example$data_to_pass
-demo_outcome <- caspen_example$outcome
-demo_pathways <- caspen_example$pathways
+data(pagedl_example, package = "PageDL")
+demo_data <- pagedl_example$data_to_pass
+demo_outcome <- pagedl_example$outcome
+demo_pathways <- pagedl_example$pathways
 default_test_data_file <- system.file("extdata", "protein_data_Test.csv", package = "PageDL")
 default_test_outcome_file <- system.file("extdata", "outcome_binary_Test.csv", package = "PageDL")
 
@@ -81,7 +81,7 @@ ui <- fluidPage(
     tags$style(HTML("
       body { background: #f7f8fa; }
       .title-panel { padding: 18px 0 8px; }
-      .caspen-card {
+      .pagedl-card {
         background: white;
         border: 1px solid #e5e7eb;
         border-radius: 8px;
@@ -181,12 +181,12 @@ ui <- fluidPage(
         tabPanel(
           "Overview",
           div(
-            class = "caspen-card",
+            class = "pagedl-card",
             h4("Included Example"),
             verbatimTextOutput("data_summary")
           ),
           div(
-            class = "caspen-card",
+            class = "pagedl-card",
             h4("Workflow"),
             tags$ol(
               tags$li("Select a few pathways and base learners."),
@@ -199,41 +199,41 @@ ui <- fluidPage(
         ),
         tabPanel(
           "Pathway Selection",
-          div(class = "caspen-card", h4("AUC / Primary Metric"), DTOutput("path_auc")),
-          div(class = "caspen-card", h4("Sensitivity At 95% Specificity"), DTOutput("path_sp95")),
-          div(class = "caspen-card", h4("Pathway Scatter"), plotOutput("path_plot", height = 560))
+          div(class = "pagedl-card", h4("AUC / Primary Metric"), DTOutput("path_auc")),
+          div(class = "pagedl-card", h4("Sensitivity At 95% Specificity"), DTOutput("path_sp95")),
+          div(class = "pagedl-card", h4("Pathway Scatter"), plotOutput("path_plot", height = 560))
         ),
         tabPanel(
           "Gene Selection",
-          div(class = "caspen-card", h4("Selected Genes"), DTOutput("gene_selected")),
-          div(class = "caspen-card", h4("Gene Ranking"), DTOutput("gene_ranking")),
-          div(class = "caspen-card", h4("Gene Stability Plot"), plotOutput("gene_plot", height = 560))
+          div(class = "pagedl-card", h4("Selected Genes"), DTOutput("gene_selected")),
+          div(class = "pagedl-card", h4("Gene Ranking"), DTOutput("gene_ranking")),
+          div(class = "pagedl-card", h4("Gene Stability Plot"), plotOutput("gene_plot", height = 560))
         ),
         tabPanel(
           "Literature Priors",
-          div(class = "caspen-card", h4("Direct llm_literature_signatures() Evidence"), DTOutput("llm_demo_evidence")),
-          div(class = "caspen-card", h4("Direct llm_literature_signatures() Priors"), DTOutput("llm_demo_prior")),
-          div(class = "caspen-card", h4("Direct llm_literature_signatures() Curated Signatures"), DTOutput("llm_demo_signatures")),
-          div(class = "caspen-card", h4("Pathway LLM / Literature Evidence"), DTOutput("llm_evidence")),
-          div(class = "caspen-card", h4("Pathway Prior Weights"), DTOutput("llm_prior")),
-          div(class = "caspen-card", h4("Gene Prior Columns"), DTOutput("gene_prior_table"))
+          div(class = "pagedl-card", h4("Direct llm_literature_signatures() Evidence"), DTOutput("llm_demo_evidence")),
+          div(class = "pagedl-card", h4("Direct llm_literature_signatures() Priors"), DTOutput("llm_demo_prior")),
+          div(class = "pagedl-card", h4("Direct llm_literature_signatures() Curated Signatures"), DTOutput("llm_demo_signatures")),
+          div(class = "pagedl-card", h4("Pathway LLM / Literature Evidence"), DTOutput("llm_evidence")),
+          div(class = "pagedl-card", h4("Pathway Prior Weights"), DTOutput("llm_prior")),
+          div(class = "pagedl-card", h4("Gene Prior Columns"), DTOutput("gene_prior_table"))
         ),
         tabPanel(
           "Train CV",
-          div(class = "caspen-card", h4("Cross-Validated Training Performance"), DTOutput("train_table"))
+          div(class = "pagedl-card", h4("Cross-Validated Training Performance"), DTOutput("train_table"))
         ),
         tabPanel(
           "Test Performance",
-          div(class = "caspen-card", h4("External Test Data"), verbatimTextOutput("test_summary")),
-          div(class = "caspen-card", h4("Independent Test Performance"), DTOutput("test_table"))
+          div(class = "pagedl-card", h4("External Test Data"), verbatimTextOutput("test_summary")),
+          div(class = "pagedl-card", h4("Independent Test Performance"), DTOutput("test_table"))
         ),
         tabPanel(
           "Generated R Code",
-          div(class = "caspen-card", h4("LLM Signature Demo Code"), verbatimTextOutput("llm_demo_code")),
-          div(class = "caspen-card", h4("Pathway Selection Code"), verbatimTextOutput("path_code")),
-          div(class = "caspen-card", h4("Gene Selection Code"), verbatimTextOutput("gene_code")),
-          div(class = "caspen-card", h4("Train CV Code"), verbatimTextOutput("train_code")),
-          div(class = "caspen-card", h4("Test Performance Code"), verbatimTextOutput("test_code"))
+          div(class = "pagedl-card", h4("LLM Signature Demo Code"), verbatimTextOutput("llm_demo_code")),
+          div(class = "pagedl-card", h4("Pathway Selection Code"), verbatimTextOutput("path_code")),
+          div(class = "pagedl-card", h4("Gene Selection Code"), verbatimTextOutput("gene_code")),
+          div(class = "pagedl-card", h4("Train CV Code"), verbatimTextOutput("train_code")),
+          div(class = "pagedl-card", h4("Test Performance Code"), verbatimTextOutput("test_code"))
         )
       )
     )
@@ -689,12 +689,12 @@ server <- function(input, output, session) {
   output$path_code <- renderText({
     code_block(
       "library(PageDL)",
-      "data(caspen_example)",
+      "data(pagedl_example)",
       "path_res <- pathway_select(",
       "  outcome.type = 'binary',",
-      "  outcome = caspen_example$outcome,",
-      "  data = caspen_example$data_to_pass,",
-      paste0("  features = caspen_example$pathways[c(",
+      "  outcome = pagedl_example$outcome,",
+      "  data = pagedl_example$data_to_pass,",
+      paste0("  features = pagedl_example$pathways[c(",
              paste(shQuote(input$pathways), collapse = ", "), ")],"),
       paste0("  models.indiv = c(", paste(shQuote(selected_models()), collapse = ", "), "),"),
       paste0("  iter = ", min(input$iter, 5), ","),
@@ -722,7 +722,7 @@ server <- function(input, output, session) {
       "llm_res <- llm_literature_signatures(",
       paste0("  disease = ", shQuote(input$disease), ","),
       paste0("  outcome.context = ", shQuote(input$outcome_context), ","),
-      paste0("  features = caspen_example$pathways[c(",
+      paste0("  features = pagedl_example$pathways[c(",
              paste(shQuote(input$pathways), collapse = ", "), ")],"),
       paste0("  mode = ", shQuote(llm_mode_for_direct_demo()), ","),
       paste0("  prior.method = ", shQuote(input$llm_prior_method), ","),
@@ -739,8 +739,8 @@ server <- function(input, output, session) {
     code_block(
       "gene_res <- gene_select(",
       "  outcome.type = 'binary',",
-      "  outcome = caspen_example$outcome,",
-      "  data = caspen_example$data_to_pass,",
+      "  outcome = pagedl_example$outcome,",
+      "  data = pagedl_example$data_to_pass,",
       paste0("  features = path_res$features[", shQuote(input$gene_pathway), "],"),
       paste0("  models = c(", paste(shQuote(gene_models()), collapse = ", "), "),"),
       paste0("  iter = ", min(input$iter, 3), ","),
@@ -758,8 +758,8 @@ server <- function(input, output, session) {
     code_block(
       "train_res <- Train_perform_CV(",
       "  outcome.type = 'binary',",
-      "  outcome = caspen_example$outcome,",
-      "  train_data = caspen_example$data_to_pass,",
+      "  outcome = pagedl_example$outcome,",
+      "  train_data = pagedl_example$data_to_pass,",
       "  features = path_res$features,",
       paste0("  models.indiv = c(", paste(shQuote(selected_models()), collapse = ", "), "),"),
       paste0("  iter = ", min(input$iter, 5), ","),
@@ -783,8 +783,8 @@ server <- function(input, output, session) {
       "",
       "test_res <- Test_perform(",
       "  outcome.type = 'binary',",
-      "  outcome = caspen_example$outcome,",
-      "  train_data = caspen_example$data_to_pass,",
+      "  outcome = pagedl_example$outcome,",
+      "  train_data = pagedl_example$data_to_pass,",
       "  test_data = test_x,",
       "  test_outcome = test_y,",
       "  features = path_res$features,",

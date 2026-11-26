@@ -100,13 +100,13 @@ requested ensemble learners plus simple and weighted average ensembles; with
 }
 \examples{
 \dontrun{
-data(caspen_example)
+data(pagedl_example)
 
 gene_train <- Gene_Train_perform_CV(
   outcome.type = "binary",
-  outcome = caspen_example$outcome,
-  train_data = caspen_example$data_to_pass,
-  genes = colnames(caspen_example$data_to_pass)[1:40],
+  outcome = pagedl_example$outcome,
+  train_data = pagedl_example$data_to_pass,
+  genes = colnames(pagedl_example$data_to_pass)[1:40],
   models.indiv = c("RF", "EN", "XG"),
   iter = 5,
   num.folds = 3,
@@ -114,8 +114,7 @@ gene_train <- Gene_Train_perform_CV(
   models.ens = c("RF", "EN", "XG")
 )
 
-gene_train$auc
-gene_train$SP.95
+gene_train[, c("model", "auc", "sp95")]
 }
 
 }

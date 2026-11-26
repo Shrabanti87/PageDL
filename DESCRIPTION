@@ -1,6 +1,6 @@
 Package: PageDL
 Title: Pathway-Guided Ensemble Prediction from Molecular Data
-Version: 0.0.4
+Version: 0.0.5
 Authors@R: c(
     person("Shrabanti", "Chowdhury",
       email = "shrabanti.chowdhury@mssm.edu",

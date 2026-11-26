@@ -34,7 +34,7 @@ pathway_select(
   disease = NULL,
   outcome.context = NULL,
   llm.provider = c("openai", "custom"),
-  llm.model = Sys.getenv("CASPEN_OPENAI_MODEL", "gpt-4.1-mini"),
+  llm.model = Sys.getenv("PAGEDL_OPENAI_MODEL", "gpt-4.1-mini"),
   llm.api.key = Sys.getenv("OPENAI_API_KEY"),
   llm.fn = NULL,
   llm.n.signatures = 10,
@@ -152,7 +152,7 @@ maps concepts to the supplied pathway list and runs only matched pathways;
 \item{llm.provider}{LLM provider passed to \code{llm_literature_signatures()}.
 Currently \code{"openai"} or \code{"custom"}.}
 
-\item{llm.model}{OpenAI model name. Defaults to \code{CASPEN_OPENAI_MODEL} or
+\item{llm.model}{OpenAI model name. Defaults to \code{PAGEDL_OPENAI_MODEL} or
 \code{"gpt-4.1-mini"}.}
 
 \item{llm.api.key}{OpenAI API key. Defaults to \code{OPENAI_API_KEY}.}
@@ -332,10 +332,10 @@ parameter settings to avoid overfitting when stacking predictions.
 # -------------------------------------------------------------------------
 # Minimal binary pathway-selection example
 # -------------------------------------------------------------------------
-data(caspen_example)
-data_to_pass <- caspen_example$data_to_pass
-output <- caspen_example$outcome
-dq <- caspen_example$pathways
+data(pagedl_example)
+data_to_pass <- pagedl_example$data_to_pass
+output <- pagedl_example$outcome
+dq <- pagedl_example$pathways
 
 AUC.mat <- pathway_select(
   outcome.type = "binary",

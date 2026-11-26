@@ -1,7 +1,7 @@
 #' Independent Test Dataset For PageDL Examples
 #'
 #' An independent binary-outcome protein test dataset used to demonstrate
-#' `Test_perform()` after training or pathway selection on `caspen_example`.
+#' `Test_perform()` after training or pathway selection on `pagedl_example`.
 #' The original CSV files are also installed under `inst/extdata`.
 #'
 #' @format A list containing:
@@ -22,4 +22,4 @@
 #' }
 #'
 #' @source Derived from internal study datasets
-"caspen_test_example"
+"pagedl_test_example"

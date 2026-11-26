@@ -85,12 +85,12 @@
 #' # -------------------------------------------------------------------------
 #' # Basic gene selection inside selected pathways
 #' # -------------------------------------------------------------------------
-#' data(caspen_example)
+#' data(pagedl_example)
 #' gs <- gene_select(
 #'   outcome.type = "binary",
-#'   outcome = caspen_example$outcome,
-#'   data = caspen_example$data_to_pass,
-#'   features = caspen_example$pathways[1],
+#'   outcome = pagedl_example$outcome,
+#'   data = pagedl_example$data_to_pass,
+#'   features = pagedl_example$pathways[1],
 #'   models = c("RF", "EN", "DCT"),
 #'   iter = 1,
 #'   num.folds = 2,
@@ -108,9 +108,9 @@
 #' # -----------------------------------------------------------------------
 #' path_res <- pathway_select(
 #'   outcome.type = "binary",
-#'   outcome = caspen_example$outcome,
-#'   data = caspen_example$data_to_pass,
-#'   features = caspen_example$pathways[1:10],
+#'   outcome = pagedl_example$outcome,
+#'   data = pagedl_example$data_to_pass,
+#'   features = pagedl_example$pathways[1:10],
 #'   models.indiv = c("RF", "EN", "DCT"),
 #'   iter = 10,
 #'   num.folds = 3,
@@ -122,8 +122,8 @@
 #'
 #' gene_res <- gene_select(
 #'   outcome.type = "binary",
-#'   outcome = caspen_example$outcome,
-#'   data = caspen_example$data_to_pass,
+#'   outcome = pagedl_example$outcome,
+#'   data = pagedl_example$data_to_pass,
 #'   features = selected_pathways,
 #'   models = c("RF", "GB", "EN", "DCT"),
 #'   iter = 10,
@@ -146,9 +146,9 @@
 #' # support side by side.
 #' gene_pubmed <- gene_select(
 #'   outcome.type = "binary",
-#'   outcome = caspen_example$outcome,
-#'   data = caspen_example$data_to_pass,
-#'   features = caspen_example$pathways[1:2],
+#'   outcome = pagedl_example$outcome,
+#'   data = pagedl_example$data_to_pass,
+#'   features = pagedl_example$pathways[1:2],
 #'   models = c("RF", "EN", "DCT"),
 #'   iter = 5,
 #'   num.folds = 3,
@@ -166,9 +166,9 @@
 #' # PubTator3 gene priors use PubMed IDs plus PubTator gene annotations.
 #' gene_pubtator <- gene_select(
 #'   outcome.type = "binary",
-#'   outcome = caspen_example$outcome,
-#'   data = caspen_example$data_to_pass,
-#'   features = caspen_example$pathways[1:2],
+#'   outcome = pagedl_example$outcome,
+#'   data = pagedl_example$data_to_pass,
+#'   features = pagedl_example$pathways[1:2],
 #'   models = c("RF", "EN", "DCT"),
 #'   iter = 5,
 #'   num.folds = 3,
@@ -190,9 +190,9 @@
 #'
 #' gene_hybrid <- gene_select(
 #'   outcome.type = "binary",
-#'   outcome = caspen_example$outcome,
-#'   data = caspen_example$data_to_pass,
-#'   features = caspen_example$pathways[1:2],
+#'   outcome = pagedl_example$outcome,
+#'   data = pagedl_example$data_to_pass,
+#'   features = pagedl_example$pathways[1:2],
 #'   models = c("RF", "GB", "EN", "DCT"),
 #'   iter = 5,
 #'   num.folds = 3,
@@ -240,9 +240,9 @@
 #'
 #' gene_ollama <- gene_select(
 #'   outcome.type = "binary",
-#'   outcome = caspen_example$outcome,
-#'   data = caspen_example$data_to_pass,
-#'   features = caspen_example$pathways[1:2],
+#'   outcome = pagedl_example$outcome,
+#'   data = pagedl_example$data_to_pass,
+#'   features = pagedl_example$pathways[1:2],
 #'   models = c("RF", "EN", "DCT"),
 #'   iter = 5,
 #'   num.folds = 3,
@@ -285,7 +285,7 @@ gene_select <- function(outcome.type, outcome, data, features,
                         disease = NULL,
                         outcome.context = NULL,
                         llm.provider = c("openai", "custom"),
-                        llm.model = Sys.getenv("CASPEN_OPENAI_MODEL", "gpt-4.1-mini"),
+                        llm.model = Sys.getenv("PAGEDL_OPENAI_MODEL", "gpt-4.1-mini"),
                         llm.api.key = Sys.getenv("OPENAI_API_KEY"),
                         llm.fn = NULL,
                         llm.pubmed = FALSE,
@@ -338,7 +338,7 @@ gene_select <- function(outcome.type, outcome, data, features,
     if (!length(genes)) next
     pathway.params <- param.models %||% list()
     if (isTRUE(auto.tune)) {
-      tuned <- caspen_auto_tune_params(
+      tuned <- pagedl_auto_tune_params(
         outcome.type = type_out,
         outcome = outcome,
         x = data[, genes, drop = FALSE],
@@ -532,7 +532,7 @@ add_gene_prior_scores <- function(tab, gene.prior.method = "none",
                                                           llm = 0.1),
                                   disease = NULL, outcome.context = NULL,
                                   llm.provider = c("openai", "custom"),
-                                  llm.model = Sys.getenv("CASPEN_OPENAI_MODEL", "gpt-4.1-mini"),
+                                  llm.model = Sys.getenv("PAGEDL_OPENAI_MODEL", "gpt-4.1-mini"),
                                   llm.api.key = Sys.getenv("OPENAI_API_KEY"),
                                   llm.fn = NULL,
                                   llm.pubmed = FALSE,
@@ -546,16 +546,16 @@ add_gene_prior_scores <- function(tab, gene.prior.method = "none",
   genes <- genes[nzchar(genes)]
   need.pubmed <- gene.prior.method == "pubmed_count" ||
     (gene.prior.method == "hybrid" &&
-       "pubmed_count" %in% names(caspen_normalize_hybrid_weights(gene.hybrid.weights)))
+       "pubmed_count" %in% names(pagedl_normalize_hybrid_weights(gene.hybrid.weights)))
   need.pubtator <- gene.prior.method == "pubtator" ||
     (gene.prior.method == "hybrid" &&
-       "pubtator" %in% names(caspen_normalize_hybrid_weights(gene.hybrid.weights)))
+       "pubtator" %in% names(pagedl_normalize_hybrid_weights(gene.hybrid.weights)))
   need.llm <- gene.prior.method %in% c("llm", "hybrid")
 
   pubmed.df <- data.frame(pathway = genes, pubmed.count = NA_real_,
                           pubmed.score = NA_real_, stringsAsFactors = FALSE)
   if (isTRUE(need.pubmed)) {
-    pubmed.df <- caspen_pubmed_prior_scores(
+    pubmed.df <- pagedl_pubmed_prior_scores(
       disease = disease,
       outcome.context = outcome.context,
       pathway.names = genes,
@@ -567,7 +567,7 @@ add_gene_prior_scores <- function(tab, gene.prior.method = "none",
                             pubtator.score = NA_real_, stringsAsFactors = FALSE)
   if (isTRUE(need.pubtator)) {
     gene.features <- stats::setNames(as.list(genes), genes)
-    pubtator.df <- caspen_pubtator_prior_scores(
+    pubtator.df <- pagedl_pubtator_prior_scores(
       disease = disease,
       outcome.context = outcome.context,
       features = gene.features,
@@ -620,7 +620,7 @@ add_gene_prior_scores <- function(tab, gene.prior.method = "none",
       model_importance = unname(tab$model_importance.score[i]),
       stability = unname(tab$stability[i])
     )
-    tab$hybrid.score[i] <- caspen_combine_prior_components(
+    tab$hybrid.score[i] <- pagedl_combine_prior_components(
       prior.method = if (gene.prior.method == "hybrid") "hybrid" else gene.prior.method,
       components = components,
       hybrid.weights = gene.hybrid.weights

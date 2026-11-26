@@ -14,7 +14,7 @@ literature priors.
 \section{Model backends}{
 
 PageDL uses short model abbreviations across functions. Use
-\code{caspen_model_info()} to see the backend package for each abbreviation and
+\code{pagedl_model_info()} to see the backend package for each abbreviation and
 the installed package version on the current machine. Common abbreviations
 include \code{XG} (xgboost), \code{RF} (random forest), \code{EN} (elastic net), \code{GB}
 (gradient boosting), \code{KNN} (k-nearest neighbors), \code{SVM} (support vector

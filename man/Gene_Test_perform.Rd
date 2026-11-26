@@ -86,24 +86,23 @@ individual base learners.
 }
 \examples{
 \dontrun{
-data(caspen_example)
-data(caspen_test_example)
+data(pagedl_example)
+data(pagedl_test_example)
 
-genes <- colnames(caspen_example$data_to_pass)[1:40]
+genes <- colnames(pagedl_example$data_to_pass)[1:40]
 gene_test <- Gene_Test_perform(
   outcome.type = "binary",
-  outcome = caspen_example$outcome,
-  train_data = caspen_example$data_to_pass,
-  test_data = caspen_test_example$test_data,
-  test_outcome = caspen_test_example$test_outcome,
+  outcome = pagedl_example$outcome,
+  train_data = pagedl_example$data_to_pass,
+  test_data = pagedl_test_example$test_data,
+  test_outcome = pagedl_test_example$test_outcome,
   genes = genes,
   models.indiv = c("RF", "EN", "XG"),
   ensemble = TRUE,
   models.ens = c("RF", "EN", "XG")
 )
 
-gene_test$auc
-gene_test$SP.95
+gene_test[, c("model", "auc", "sp95")]
 }
 
 }

@@ -48,13 +48,13 @@ C-index when available; otherwise it uses AUC.
 }
 \examples{
 \dontrun{
-data(caspen_example)
+data(pagedl_example)
 
 path_res <- pathway_select(
   outcome.type = "binary",
-  outcome = caspen_example$outcome,
-  data = caspen_example$data_to_pass,
-  features = caspen_example$pathways[1:5],
+  outcome = pagedl_example$outcome,
+  data = pagedl_example$data_to_pass,
+  features = pagedl_example$pathways[1:5],
   models.indiv = c("RF", "EN"),
   iter = 5,
   num.folds = 3

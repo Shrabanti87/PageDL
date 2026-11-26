@@ -7,7 +7,7 @@
 #'
 #' @section Model backends:
 #' PageDL uses short model abbreviations across functions. Use
-#' `caspen_model_info()` to see the backend package for each abbreviation and
+#' `pagedl_model_info()` to see the backend package for each abbreviation and
 #' the installed package version on the current machine. Common abbreviations
 #' include `XG` (xgboost), `RF` (random forest), `EN` (elastic net), `GB`
 #' (gradient boosting), `KNN` (k-nearest neighbors), `SVM` (support vector

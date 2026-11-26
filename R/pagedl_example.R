@@ -16,4 +16,4 @@
 #' }
 #'
 #' @source Derived from internal study datasets
-"caspen_example"
+"pagedl_example"

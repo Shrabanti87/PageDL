@@ -9,10 +9,10 @@
 #' installed package version, and notes.
 #'
 #' @examples
-#' caspen_model_info()
+#' pagedl_model_info()
 #'
 #' @export
-caspen_model_info <- function() {
+pagedl_model_info <- function() {
   info <- data.frame(
     model = c("XG", "RF", "EN", "GB", "KNN", "SVM", "NB", "DCT",
               "NN", "ADB", "MB"),

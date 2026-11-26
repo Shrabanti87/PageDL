@@ -14,7 +14,7 @@ llm_literature_signatures(
   max.genes = 80,
   min.genes = 5,
   provider = c("openai", "custom"),
-  model = Sys.getenv("CASPEN_OPENAI_MODEL", "gpt-4.1-mini"),
+  model = Sys.getenv("PAGEDL_OPENAI_MODEL", "gpt-4.1-mini"),
   api.key = Sys.getenv("OPENAI_API_KEY"),
   llm.fn = NULL,
   pubmed = TRUE,
@@ -51,7 +51,7 @@ data for a new LLM-curated signature to be retained. Default is 5.}
 
 \item{provider}{LLM provider. Currently \code{"openai"} or \code{"custom"}.}
 
-\item{model}{OpenAI model name. Defaults to \code{CASPEN_OPENAI_MODEL} or
+\item{model}{OpenAI model name. Defaults to \code{PAGEDL_OPENAI_MODEL} or
 \code{"gpt-4.1-mini"}.}
 
 \item{api.key}{OpenAI API key. Defaults to \code{OPENAI_API_KEY}.}
@@ -116,9 +116,9 @@ omitted and the remaining weights are re-normalized.
 \dontrun{
 # 1) Load example data and pathway definitions.
 library(PageDL)
-data(caspen_example)
+data(pagedl_example)
 
-pathways <- caspen_example$pathways[1:5]
+pathways <- pagedl_example$pathways[1:5]
 
 # 2) Score user-provided pathways with OpenAI.
 # Set this once per R session, or store it in ~/.Renviron.
@@ -216,8 +216,8 @@ curated_res$evidence
 # 3) Use the prior weights during pathway selection.
 path_res <- pathway_select(
   outcome.type = "binary",
-  outcome = caspen_example$outcome,
-  data = caspen_example$data_to_pass,
+  outcome = pagedl_example$outcome,
+  data = pagedl_example$data_to_pass,
   features = pathways,
   models.indiv = c("RF", "EN"),
   iter = 5,

@@ -21,13 +21,13 @@
 #'
 #' @examples
 #' \dontrun{
-#' data(caspen_example)
+#' data(pagedl_example)
 #'
 #' path_res <- pathway_select(
 #'   outcome.type = "binary",
-#'   outcome = caspen_example$outcome,
-#'   data = caspen_example$data_to_pass,
-#'   features = caspen_example$pathways[1:5],
+#'   outcome = pagedl_example$outcome,
+#'   data = pagedl_example$data_to_pass,
+#'   features = pagedl_example$pathways[1:5],
 #'   models.indiv = c("RF", "EN"),
 #'   iter = 5,
 #'   num.folds = 3
@@ -110,13 +110,13 @@ plot_pathway_selection <- function(x, outcome.type = c("auto", "binary", "catego
 #'
 #' @examples
 #' \dontrun{
-#' data(caspen_example)
+#' data(pagedl_example)
 #'
 #' gene_res <- gene_select(
 #'   outcome.type = "binary",
-#'   outcome = caspen_example$outcome,
-#'   data = caspen_example$data_to_pass,
-#'   features = caspen_example$pathways[1],
+#'   outcome = pagedl_example$outcome,
+#'   data = pagedl_example$data_to_pass,
+#'   features = pagedl_example$pathways[1],
 #'   models = c("RF", "EN", "DCT"),
 #'   iter = 3,
 #'   num.folds = 3,
@@ -199,22 +199,22 @@ plot_gene_selection <- function(x, pathway = NULL, label.top = 12, main = NULL,
 #'
 #' @examples
 #' \dontrun{
-#' data(caspen_example)
+#' data(pagedl_example)
 #'
 #' # Plot from a numeric risk/probability vector.
-#' marker <- caspen_example$data_to_pass[, 1]
+#' marker <- pagedl_example$data_to_pass[, 1]
 #' plot_roc_curve(
 #'   x = marker,
-#'   outcome = caspen_example$outcome,
+#'   outcome = pagedl_example$outcome,
 #'   outcome.type = "binary",
 #'   main = "Example binary ROC"
 #' )
 #'
 #' # Survival ROC at one year from a numeric risk score.
 #' set.seed(1)
-#' survival_time <- sample(120:1800, nrow(caspen_example$data_to_pass),
+#' survival_time <- sample(120:1800, nrow(pagedl_example$data_to_pass),
 #'                         replace = TRUE)
-#' survival_status <- caspen_example$outcome
+#' survival_status <- pagedl_example$outcome
 #'
 #' plot_roc_curve(
 #'   x = marker,
