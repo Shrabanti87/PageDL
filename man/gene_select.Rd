@@ -88,7 +88,7 @@ repeated gene-importance estimation. Defaults to \code{FALSE}.}
 \item{tune.method}{Candidate-search strategy. \code{"random"} is the recommended
 fast option and \code{"grid"} evaluates a deterministic grid. The accepted
 \code{"successive_halving"}, \code{"hyperband"}, and \code{"bayes"} values currently use
-CASPEN's random-search backend.}
+PageDL's random-search backend.}
 
 \item{tune.n}{Positive integer number of candidate parameter settings sampled
 per tuned model.}

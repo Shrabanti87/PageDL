@@ -7,8 +7,8 @@ template:
     primary: "#1f6f4a"
 
 home:
-  title: CASPEN
-  description: Celltype-aware stacked pathway-guided ensemble prediction for binary, survival, and categorical outcomes.
+  title: PageDL
+  description: Pathway-guided ensemble prediction from bulk or cell-type-specific molecular data.
   sidebar:
     structure: [links, license, citation, authors, dev]
 
@@ -34,7 +34,7 @@ navbar:
       menu:
       - text: Portal and Shiny demo
         href: articles/caspen-portal.html
-      - text: CASPEN tutorial
+      - text: PageDL tutorial
         href: articles/caspen-tutorial.html
     github:
       icon: fa-github
@@ -44,7 +44,7 @@ navbar:
 reference:
 - title: Package and demo
   contents:
-  - CASPEN-package
+  - PageDL-package
   - caspen_model_info
   - launch_caspen_demo
 - title: Pathway and gene selection

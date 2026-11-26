@@ -6,13 +6,13 @@
 #' and save the curated signatures or prior table before model fitting.
 #'
 #' @details
-#' CASPEN supports four prior-weight strategies. With `prior.method = "llm"`,
+#' PageDL supports four prior-weight strategies. With `prior.method = "llm"`,
 #' the prior is the LLM-assigned 0-1 evidence score. With `prior.method =
-#' "pubmed_count"`, CASPEN queries PubMed for each disease + outcome + pathway
+#' "pubmed_count"`, PageDL queries PubMed for each disease + outcome + pathway
 #' combination and computes `pubmed.score = log1p(count) / max(log1p(count))`
-#' across the submitted pathways. With `prior.method = "pubtator"`, CASPEN
+#' across the submitted pathways. With `prior.method = "pubtator"`, PageDL
 #' retrieves PubMed IDs and checks PubTator3 gene annotations for submitted
-#' pathway genes. With `prior.method = "hybrid"`, CASPEN forms a weighted
+#' pathway genes. With `prior.method = "hybrid"`, PageDL forms a weighted
 #' average of available component scores:
 #'
 #' `prior = sum(component_score * hybrid.weight) / sum(available weights)`.
@@ -70,7 +70,7 @@
 #' @examples
 #' \dontrun{
 #' # 1) Load example data and pathway definitions.
-#' library(CASPEN)
+#' library(PageDL)
 #' data(caspen_example)
 #'
 #' pathways <- caspen_example$pathways[1:5]
@@ -695,7 +695,7 @@ caspen_llm_prompt <- function(disease, outcome.context, mode, feature.names,
     prior = "Assign prior weights to the existing pathway names only. Do not curate new signatures."
   )
   paste(
-    "You are helping CASPEN, a celltype-aware pathway-guided ensemble prediction method.",
+    "You are helping PageDL, a celltype-aware pathway-guided ensemble prediction method.",
     "Use the literature context when possible. Prefer human gene symbols.",
     task,
     paste("Disease:", disease),

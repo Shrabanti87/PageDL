@@ -27,7 +27,8 @@ Gene_Train_perform_CV(
   parallel.iter = FALSE,
   workers = future::availableCores(),
   future.seed = NULL,
-  future.strategy = "multisession"
+  future.strategy = "multisession",
+  suppress.model.warnings = TRUE
 )
 }
 \arguments{
@@ -78,6 +79,9 @@ a temporary \code{future} backend.}
 \item{future.seed}{Passed to \code{future.apply::future_lapply()}.}
 
 \item{future.strategy}{Future backend strategy used when \code{parallel.iter = TRUE}.}
+
+\item{suppress.model.warnings}{Logical. Defaults to \code{TRUE}. Set to \code{FALSE}
+to show warnings emitted during model tuning, fitting, and scoring.}
 }
 \value{
 A data frame of model-level performance metrics. For binary and
@@ -86,7 +90,7 @@ C-index, time-dependent AUC, and SP95 are returned. For continuous outcomes,
 C-index, R2, MAE, and RMSE are returned when available.
 }
 \description{
-\code{Gene_Train_perform_CV()} fits CASPEN models directly on a gene/protein
+\code{Gene_Train_perform_CV()} fits PageDL models directly on a gene/protein
 feature matrix instead of looping over pathways. In each fold, base learners
 are fit on the selected genes and their predictions become the inputs to the
 stacked ensemble learners. Predictions are aggregated over cross-validation

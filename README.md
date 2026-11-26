@@ -1,36 +1,26 @@
-# CASPEN
+# PageDL
 
-**CASPEN** (**c**elltype **a**ware **s**tacked **p**athway-guided
-**en**semble) is an R package for building pathway-guided ensemble AI models
-for predicting clinical outcomes based on molecular data.
+**PageDL** is an R package for predicting clinical outcomes from **bulk** or
+**cell-type-specific** molecular data. It supports binary outcomes such as
+treatment response, multiclass outcomes such as molecular subtype, survival,
+and continuous outcomes. Users can supply curated pathways, cell-state
+signatures, or spatial niche gene sets. Optional literature evidence and LLM
+tools can help identify relevant pathways or assign prior weights to supplied
+gene sets.
 
-CASPEN provides a pathway-guided ensemble learning framework that integrates
-biologically curated pathways with cell-state-specific and spatial
-niche-informed gene signatures to predict binary (treatment response),
-multiclass (molecular subtypes), survival (time-to-event), and continuous
-clinical outcomes. To incorporate cell-type-specific contribution into
-prediction, CASPEN allows users to input celltype-specific molecular data as
-well as cell-state-specific and niche-informed gene signatures derived from
-single-cell and spatial transcriptomics data. CASPEN can also optionally curate
-priors from the literature using LLMs and/or place prior weights on
-user-provided pathways and gene sets.
+PageDL fits models for each pathway in bulk data, or for each pathway and cell
+type in cell-type-specific data. A second-stage ensemble combines the model
+predictions. Users can select pathways by predictive performance and genes
+within pathways by importance and stability. For cell-type-specific analyses,
+an entropy-based index summarizes whether a pathway's predictive signal is
+concentrated in one or a few cell types or spread across them.
 
-These functional annotations are incorporated into a hierarchical two-layer
-ensemble framework of deep learning models. The first layer constructs
-pathway-specific models for tumor and microenvironmental compartments,
-capturing compartment-specific effects. Predictions are then aggregated in a
-second-layer ensemble to produce robust and calibrated outcome predictions.
-CASPEN also allows pathway selection and selection of genes within pathways
-based on prediction performance metrics, importance, stability, and optional
-literature-based prior relevance. CASPEN reports an entropy-based celltype
-specificity index for each pathway that tells whether the predictive signal is
-concentrated in one celltype or spread across celltypes.
+## What PageDL Is For
 
-## What CASPEN Is For
+PageDL is designed for analyses where the user has:
 
-CASPEN is designed for analyses where the user has:
-
-- an omics matrix, such as RNA, protein, or celltype-specific expression;
+- an omics matrix, such as RNA expression or protein abundance, measured in bulk
+  or resolved by cell type;
 - pathway or gene-set definitions, for example MSigDB/Reactome/KEGG/user lists;
 - an outcome, such as response/non-response, survival time/status, subtype, or
   a continuous phenotype/score;
@@ -41,23 +31,23 @@ The main idea is:
 
 ```text
 omics data + pathway definitions + outcome
-        -> pathway-celltype models
+        -> pathway models (bulk) or pathway-by-cell-type models
         -> base learners and ensembles
         -> AUC/C-index, SP95, pathway selection, gene selection
 ```
 
 ## Important LLM Design Choice
 
-CASPEN should **not** rely on an LLM to invent complete gene sets from scratch.
+PageDL should **not** rely on an LLM to invent complete gene sets from scratch.
 LLMs often return very small marker-style lists, such as 2-3 genes, which are
 not ideal for pathway-based prediction.
 
-The recommended CASPEN workflow is:
+The recommended PageDL workflow is:
 
 1. Provide curated pathways/gene sets, such as MSigDB signatures.
 2. Let the LLM curate disease/outcome-relevant **biological concepts** and/or
    score prior evidence.
-3. CASPEN maps those concepts back to the user-provided pathway list and runs
+3. PageDL maps those concepts back to the user-provided pathway list and runs
    only the matched curated pathways.
 
 For example:
@@ -68,7 +58,7 @@ Matched user/MSigDB pathway: HALLMARK_PI3K_AKT_MTOR_SIGNALING
 Genes used for modeling: genes from the supplied MSigDB pathway
 ```
 
-This keeps CASPEN literature-aware while keeping gene membership curated,
+This keeps PageDL literature-aware while keeping gene membership curated,
 interpretable, and large enough for prediction.
 
 In `pathway_select()`, this behavior is controlled by:
@@ -79,7 +69,7 @@ llm.curate.action = "match_pathways"
 ```
 
 For example, if the user supplies 1000 MSigDB/user pathways and the LLM
-curates concepts that match 100 of them, CASPEN runs those 100 matched
+curates concepts that match 100 of them, PageDL runs those 100 matched
 user-provided pathways. The mapping is returned in:
 
 ```r
@@ -92,11 +82,11 @@ because LLM gene lists can be small or incomplete.
 
 ## Installation
 
-Install from GitHub:
+Install PageDL from the existing GitHub repository:
 
 ```r
 install.packages("remotes")
-remotes::install_github("Shrabanti87/CASPEN")
+remotes::install_github("Shrabanti87/CASPEN@main")
 ```
 
 Install from a local checkout:
@@ -109,7 +99,7 @@ remotes::install_local(".")
 Load the package:
 
 ```r
-library(CASPEN)
+library(PageDL)
 ```
 
 Check model backend versions:
@@ -136,7 +126,7 @@ caspen_model_info()
 
 ## Supported Model Abbreviations
 
-CASPEN can use these base learners, depending on the outcome type:
+PageDL can use these base learners, depending on the outcome type:
 
 - `XG`: XGBoost
 - `RF`: random forest
@@ -155,7 +145,7 @@ Ensemble outputs use names such as `RF.ens`, `SVM.ens`, `XG.ens`,
 
 ## Example Data
 
-CASPEN includes small example datasets for package demos:
+PageDL includes small example datasets for package demos:
 
 ```r
 data(caspen_example)
@@ -216,7 +206,7 @@ Plot pathway selection:
 plot_pathway_selection(path_res)
 ```
 
-For celltype-aware runs, CASPEN also reports an entropy-based celltype
+For celltype-aware runs, PageDL also reports an entropy-based celltype
 specificity index for each parent pathway. Values closer to 1 mean the
 predictive signal is concentrated in one celltype; values closer to 0 mean the
 signal is spread across celltypes.
@@ -229,7 +219,7 @@ ct_res$celltype.specificity.by.model
 
 ### Optional Fast Hyperparameter Tuning
 
-For a more data-adaptive run, set `auto.tune = TRUE`. CASPEN samples
+For a more data-adaptive run, set `auto.tune = TRUE`. PageDL samples
 `tune.n` candidate parameter settings for each selected model, scores them by
 quick internal CV on the pathway data, then runs the main repeated CV with the
 best setting for that pathway.
@@ -264,7 +254,7 @@ and `gene_select()`.
 
 ## 2. Survival Outcomes
 
-For survival outcomes, CASPEN uses C-index as the primary metric when
+For survival outcomes, PageDL uses C-index as the primary metric when
 available, while also supporting time-dependent AUC/SP95 where implemented.
 
 ```r
@@ -304,7 +294,7 @@ cat_res$SP.95
 
 ## 4. Continuous Outcomes
 
-For continuous outcomes, CASPEN fits regression models and returns all four
+For continuous outcomes, PageDL fits regression models and returns all four
 metrics: `C.index`, `R2`, `MAE`, and `RMSE`. The user can decide which metric to
 use for selection and reporting. Here C-index is a rank-concordance metric: it
 measures how often the predicted values correctly rank pairs of samples by the
@@ -333,7 +323,7 @@ cont_res$C.index
 ```
 
 Use `continuous.metric = "r2"`, `"cindex"`, `"mae"`, or `"rmse"` to choose the
-pathway-selection criterion. For `MAE` and `RMSE`, CASPEN ranks pathways by
+pathway-selection criterion. For `MAE` and `RMSE`, PageDL ranks pathways by
 lower error internally, while still returning the original error values.
 
 `NB` is classification-only and is skipped for continuous outcomes. `ADB` is
@@ -341,7 +331,7 @@ implemented as a squared-error gradient boosting fallback for regression.
 
 ## 5. Celltype-Aware Pathway Mapping
 
-If the data columns encode gene and celltype-specific expression, CASPEN can
+If the data columns encode gene and celltype-specific expression, PageDL can
 evaluate pathway-celltype tasks. Provide the celltypes and optional aliases.
 
 ```r
@@ -369,9 +359,9 @@ ct_res <- pathway_select(
 
 Rules:
 
-- If a pathway name does not contain a celltype/alias, CASPEN can map it across
+- If a pathway name does not contain a celltype/alias, PageDL can map it across
   the supplied celltypes.
-- If a pathway name contains a celltype/alias, CASPEN restricts that pathway to
+- If a pathway name contains a celltype/alias, PageDL restricts that pathway to
   matching celltypes.
 - Users control mapping through `celltype.aliases`.
 
@@ -499,7 +489,7 @@ ollama_res <- llm_literature_signatures(
   literature priors, map those concepts to user-provided pathways/MSigDB lists,
   and run only the matched pathways using the user-provided genes.
 
-CASPEN reports literature support separately from data performance:
+PageDL reports literature support separately from data performance:
 
 ```r
 path_res$data.metric    # AUC or C-index matrix
@@ -515,7 +505,7 @@ weight.
 ## 7. Gene Selection Within Pathways
 
 `gene_select()` ranks genes within selected pathways using native model
-importance where available. For `NN`, CASPEN uses permutation importance because
+importance where available. For `NN`, PageDL uses permutation importance because
 neural networks do not expose a simple native coefficient/variable-importance
 table. Importance scores from different models are converted to within-run
 percentiles, then summarized with stability.
@@ -619,7 +609,7 @@ Gene-level training/test performance:
 Use these functions when the model should be fit directly on selected genes or
 features instead of pathway-level blocks. Base learners are fit on the gene
 matrix; ensemble models are then fit on the base-learner prediction columns.
-If `models.indiv = NULL`, CASPEN uses all models supported by the selected
+If `models.indiv = NULL`, PageDL uses all models supported by the selected
 outcome type.
 
 ```r
@@ -688,7 +678,7 @@ test_cont$C.index
 
 ## 9. Parallel Computing
 
-CASPEN uses the `future` backend.
+PageDL uses the `future` backend.
 
 Pathway-level parallelism:
 
@@ -724,11 +714,11 @@ train_res <- Train_perform_CV(
 
 ## 10. Shiny Demo
 
-CASPEN includes a lightweight Shiny app for demos and collaborator
+PageDL includes a lightweight Shiny app for demos and collaborator
 walkthroughs:
 
 ```r
-library(CASPEN)
+library(PageDL)
 launch_caspen_demo()
 ```
 

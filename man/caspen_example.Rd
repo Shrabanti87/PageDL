@@ -3,7 +3,7 @@
 \docType{data}
 \name{caspen_example}
 \alias{caspen_example}
-\title{Example dataset for CASPEN}
+\title{Example dataset for PageDL}
 \format{
 A list containing:
 \describe{
@@ -24,7 +24,7 @@ Derived from internal study datasets
 caspen_example
 }
 \description{
-An example dataset used to demonstrate the workflow of CASPEN
+An example dataset used to demonstrate the workflow of PageDL
 binary pathway-based and protein-based prediction modeling.
 }
 \keyword{datasets}

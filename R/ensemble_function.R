@@ -69,7 +69,7 @@
 #' @param llm.pubmed.max Maximum number of PubMed records to retrieve.
 #' @param llm.email Optional email passed to NCBI E-utilities.
 #' @param llm.valid.genes Optional valid gene-symbol universe for filtering LLM
-#' gene symbols. If `NULL`, CASPEN infers this from `features`.
+#' gene symbols. If `NULL`, PageDL infers this from `features`.
 #' @param llm.prior.method Character string specifying how LLM/literature prior
 #' weights are computed. `"llm"` uses the LLM-assigned score,
 #' `"pubmed_count"` uses normalized PubMed paper counts for disease + outcome +
@@ -103,7 +103,7 @@
 #' @param tune.method Candidate-search strategy. `"random"` is the recommended
 #' fast option and `"grid"` evaluates a deterministic grid. The accepted
 #' `"successive_halving"`, `"hyperband"`, and `"bayes"` values currently use
-#' CASPEN's random-search backend.
+#' PageDL's random-search backend.
 #' @param tune.n Positive integer number of candidate parameter settings sampled
 #' per tuned model and pathway.
 #' @param tune.folds Integer number of folds used by the internal tuning CV.
@@ -115,7 +115,7 @@
 #' @param parallel.pathways Logical; if `TRUE`, pathway or pathway-celltype
 #' tasks are split across a temporary `future` backend. This is usually the
 #' preferred parallelization mode when many pathways/celltypes are evaluated.
-#' If both `parallel.pathways` and `parallel.iter` are `TRUE`, CASPEN
+#' If both `parallel.pathways` and `parallel.iter` are `TRUE`, PageDL
 #' parallelizes pathways and runs iterations serially within each pathway to
 #' avoid nested worker oversubscription.
 #' @param workers Integer number of future workers to use when
@@ -123,13 +123,16 @@
 #' `future::availableCores()`. The actual worker count is capped at the number
 #' of iterations or pathway tasks being split.
 #' @param future.seed Passed to `future.apply::future_lapply()`. Default is
-#' `NULL` because CASPEN already calls `set.seed()` by iteration number inside
+#' `NULL` because PageDL already calls `set.seed()` by iteration number inside
 #' each worker, preserving serial-compatible fold generation without additional
 #' future RNG streams.
 #' @param future.strategy Future backend strategy used when `parallel.iter =
 #' TRUE`. Default is `"multisession"`. Use `"multicore"` on platforms where
 #' forked workers are preferred, or `NULL` to use the caller's existing future
 #' plan.
+#' @param suppress.model.warnings Logical. If `TRUE` (default), suppress
+#' warnings from pathway model tuning, fitting, and scoring. Use `FALSE` to
+#' show warnings emitted by the model workflow. Literature warnings remain visible.
 #'
 #' @param survdays Numeric vector of survival times required when
 #' `outcome.type = "survival"`.
@@ -231,7 +234,7 @@
 #' # Celltype-aware pathway selection
 #' # -----------------------------------------------------------------------
 #' # If data columns contain celltype-specific features such as
-#' # "TP53_CD8_Tcells" or "CD8_Tcells_TP53", CASPEN maps each bulk pathway
+#' # "TP53_CD8_Tcells" or "CD8_Tcells_TP53", PageDL maps each bulk pathway
 #' # gene list to the matching celltype-specific columns. Pathway names that
 #' # contain a celltype alias are evaluated only for matching celltypes.
 #' celltypes <- c("Tumor", "CD4_Tcells", "CD8_Tcells", "Macrophages")
@@ -282,9 +285,9 @@
 #' prior_res$selection.table  # one row per pathway-celltype/model summary
 #'
 #' # -----------------------------------------------------------------------
-#' # Ask CASPEN to score pathway priors from literature
+#' # Ask PageDL to score pathway priors from literature
 #' # -----------------------------------------------------------------------
-#' # No LLM key is needed for PubMed-count priors. CASPEN searches PubMed for
+#' # No LLM key is needed for PubMed-count priors. PageDL searches PubMed for
 #' # disease + outcome + pathway and normalizes log paper counts to 0-1.
 #' pubmed_prior_res <- pathway_select(
 #'   outcome.type = "binary",
@@ -439,7 +442,8 @@ pathway_select <- function(outcome.type, outcome, features, data, models.indiv, 
                            parallel.pathways = FALSE,
                            workers = future::availableCores(),
                            future.seed = NULL,
-                           future.strategy = "multisession") {
+                           future.strategy = "multisession",
+                           suppress.model.warnings = TRUE) {
 
   AUC.mat <- CI.low.mat <- CI.up.mat <- SP.98.mat <- SP.95.mat <- NULL
   SP.95.CI.low.mat <- SP.95.CI.up.mat <- NULL
@@ -637,6 +641,7 @@ pathway_select <- function(outcome.type, outcome, features, data, models.indiv, 
     result
   }
 
+  run_fit <- if (isTRUE(suppress.model.warnings)) suppressWarnings else identity
   if (isTRUE(parallel.pathways) && length(features) > 1) {
     path.workers <- max(1, min(as.integer(workers %||% future::availableCores()),
                                length(features)))
@@ -648,13 +653,13 @@ pathway_select <- function(outcome.type, outcome, features, data, models.indiv, 
       on.exit(future::plan(old_plan), add = TRUE)
       do.call(future::plan, c(list(future.strategy), list(workers = path.workers)))
     }
-    pathway.results <- future.apply::future_lapply(
+    pathway.results <- run_fit(future.apply::future_lapply(
       seq_along(features),
       run_one_pathway,
       future.seed = future.seed
-    )
+    ))
   } else {
-    pathway.results <- lapply(seq_along(features), run_one_pathway)
+    pathway.results <- run_fit(lapply(seq_along(features), run_one_pathway))
   }
   tuning.results <- lapply(pathway.results, attr, "tuning")
   names(tuning.results) <- path.names

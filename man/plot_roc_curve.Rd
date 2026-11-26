@@ -38,7 +38,7 @@ predictions rather than ROC objects.}
 Invisibly returns ROC objects used for plotting.
 }
 \description{
-Plots binary, multiclass, or survival ROC curves from CASPEN ROC objects or
+Plots binary, multiclass, or survival ROC curves from PageDL ROC objects or
 prediction scores. \code{Train_perform_CV()} and \code{Test_perform()} summary tables
 include AUC/SP95, while lower-level ROC helper results may include \code{roc} and
 \code{predictions} elements that can be passed directly to this function.

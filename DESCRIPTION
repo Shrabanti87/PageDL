@@ -1,6 +1,6 @@
-Package: CASPEN
-Title: CASPEN: Celltype-Aware Stacked Pathway-Guided Ensemble Prediction
-Version: 0.0.3
+Package: PageDL
+Title: Pathway-Guided Ensemble Prediction from Molecular Data
+Version: 0.0.4
 Authors@R: c(
     person("Shrabanti", "Chowdhury",
       email = "shrabanti.chowdhury@mssm.edu",
@@ -18,13 +18,10 @@ Authors@R: c(
   )
 Author: Shrabanti Chowdhury, Anna Xing, Pei Wang
 Maintainer: Anna Xing <anna.xing@mssm.edu>
-Description: CASPEN (celltype aware stacked pathway guided ensemble) is a
-    toolkit for training and evaluating celltype-aware pathway-guided ensemble
-    models, with functionality for pathway selection, gene selection, model
-    comparison, and survival analysis. Users can specify input data, pathway
-    definitions, celltype aliases, and modeling frameworks to build
-    reproducible predictive workflows for binary, categorical, survival, and
-    continuous outcomes.
+Description: Trains and evaluates pathway-guided ensemble models on bulk or
+    cell-type-specific molecular data. Supports pathway and gene selection,
+    optional literature priors, and prediction for binary, categorical,
+    survival, and continuous outcomes.
 URL: https://Shrabanti87.github.io/CASPEN/, https://github.com/Shrabanti87/CASPEN
 BugReports: https://github.com/Shrabanti87/CASPEN/issues
 License: MIT + file LICENSE
@@ -65,5 +62,5 @@ Suggests:
     pkgdown,
     rmarkdown,
     shiny,
-    testthat (>= 3.0.0)
+    testthat (>= 3.2.0)
 Config/testthat/edition: 3

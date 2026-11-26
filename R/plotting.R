@@ -179,7 +179,7 @@ plot_gene_selection <- function(x, pathway = NULL, label.top = 12, main = NULL,
 
 #' Plot ROC Curves
 #'
-#' Plots binary, multiclass, or survival ROC curves from CASPEN ROC objects or
+#' Plots binary, multiclass, or survival ROC curves from PageDL ROC objects or
 #' prediction scores. `Train_perform_CV()` and `Test_perform()` summary tables
 #' include AUC/SP95, while lower-level ROC helper results may include `roc` and
 #' `predictions` elements that can be passed directly to this function.

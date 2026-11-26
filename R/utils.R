@@ -1,6 +1,6 @@
 # Internal helpers - not exported.
 #
-# `balanced.folds.vec()` is the workhorse used throughout CASPEN to
+# `balanced.folds.vec()` is the workhorse used throughout PageDL to
 # generate stratified cross-validation folds for binary, multi-class,
 # and survival outcomes. It returns an integer vector of fold
 # assignments of length `length(y)`.
@@ -901,7 +901,7 @@ caspen_candidate_grid <- function(space, tune.method = "random", tune.n = 5,
                              "hyperband", "bayes"))
   if (!is.null(seed)) set.seed(seed)
   if (tune.method %in% c("successive_halving", "hyperband", "bayes")) {
-    message("CASPEN currently uses fast random search for tune.method = '",
+    message("PageDL currently uses fast random search for tune.method = '",
             tune.method, "'.")
     tune.method <- "random"
   }

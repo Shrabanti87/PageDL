@@ -1,6 +1,6 @@
-#' Example dataset for CASPEN
+#' Example dataset for PageDL
 #'
-#' An example dataset used to demonstrate the workflow of CASPEN
+#' An example dataset used to demonstrate the workflow of PageDL
 #' binary pathway-based and protein-based prediction modeling.
 #'
 #' @format A list containing:

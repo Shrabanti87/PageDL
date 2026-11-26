@@ -1,9 +1,9 @@
 ---
-title: "CASPEN Portal And Demo"
+title: "PageDL Portal And Demo"
 author: "Shrabanti Chowdhury, Anna Xing, Pei Wang"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{CASPEN Portal And Demo}
+  %\VignetteIndexEntry{PageDL Portal And Demo}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -15,8 +15,8 @@ knitr::opts_chunk$set(
 )
 ```
 
-This portal is the public entry point for **CASPEN**, a celltype-aware stacked
-pathway-guided ensemble prediction package. It is designed for collaborators
+This portal is the public entry point for **PageDL**, a pathway-guided ensemble
+prediction package for bulk and cell-type-specific molecular data. It is designed for collaborators
 who want to understand the method, run a small demonstration, and find the
 right R functions for a full analysis.
 
@@ -43,7 +43,7 @@ workflow_figure <- workflow_figure[file.exists(workflow_figure)][1]
 knitr::include_graphics(workflow_figure)
 ```
 
-CASPEN starts with an omics matrix, an outcome, and pathway definitions. It can
+PageDL starts with an omics matrix, an outcome, and pathway definitions. It can
 map bulk pathway genes into celltype-specific expression features when column
 names encode both gene and cell type. The selected pathway or pathway-celltype
 features can then be passed into training and independent test evaluation.
@@ -54,7 +54,7 @@ The package includes a lightweight Shiny demo using bundled example data. It is
 intended for live walkthroughs and uses small default iteration counts.
 
 ```{r shiny-demo, eval = FALSE}
-library(CASPEN)
+library(PageDL)
 launch_caspen_demo()
 ```
 
@@ -66,12 +66,12 @@ The demo app shows:
 - cross-validated training performance
 - the exact R code used for each run
 
-For large analyses, run CASPEN directly in R or on a server/HPC system rather
+For large analyses, run PageDL directly in R or on a server/HPC system rather
 than inside the demo app.
 
 ## Literature Evidence Options
 
-CASPEN can report literature priors separately from model performance. Users can
+PageDL can report literature priors separately from model performance. Users can
 then apply their own cutoffs to AUC/C-index, SP95, and prior weights.
 
 | Evidence mode | Requires LLM? | Requires internet? | Notes |

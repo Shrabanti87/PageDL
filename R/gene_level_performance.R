@@ -1,6 +1,6 @@
 #' Evaluate gene-level model performance on training data by cross-validation
 #'
-#' `Gene_Train_perform_CV()` fits CASPEN models directly on a gene/protein
+#' `Gene_Train_perform_CV()` fits PageDL models directly on a gene/protein
 #' feature matrix instead of looping over pathways. In each fold, base learners
 #' are fit on the selected genes and their predictions become the inputs to the
 #' stacked ensemble learners. Predictions are aggregated over cross-validation
@@ -38,6 +38,8 @@
 #' @param future.seed Passed to `future.apply::future_lapply()`.
 #' @param future.strategy Future backend strategy used when `parallel.iter =
 #' TRUE`.
+#' @param suppress.model.warnings Logical. Defaults to `TRUE`. Set to `FALSE`
+#' to show warnings emitted during model tuning, fitting, and scoring.
 #'
 #' @return A data frame of model-level performance metrics. For binary and
 #' categorical outcomes, AUC and SP95 are returned. For survival outcomes,
@@ -81,7 +83,8 @@ Gene_Train_perform_CV <- function(outcome.type, outcome, survdays = NULL,
                                   parallel.iter = FALSE,
                                   workers = future::availableCores(),
                                   future.seed = NULL,
-                                  future.strategy = "multisession") {
+                                  future.strategy = "multisession",
+                                  suppress.model.warnings = TRUE) {
   models.indiv <- caspen_default_models_for_outcome(outcome.type, models.indiv)
   if (isTRUE(ensemble) && is.null(models.ens)) models.ens <- models.indiv
   features <- caspen_gene_level_features(train_data = train_data, genes = genes)
@@ -108,7 +111,8 @@ Gene_Train_perform_CV <- function(outcome.type, outcome, survdays = NULL,
     parallel.iter = parallel.iter,
     workers = workers,
     future.seed = future.seed,
-    future.strategy = future.strategy
+    future.strategy = future.strategy,
+    suppress.model.warnings = suppress.model.warnings
   )
   attr(res, "analysis.level") <- "gene"
   attr(res, "genes") <- features[[1]]
@@ -117,7 +121,7 @@ Gene_Train_perform_CV <- function(outcome.type, outcome, survdays = NULL,
 
 #' Evaluate gene-level model performance on independent testing data
 #'
-#' `Gene_Test_perform()` fits CASPEN models directly on a gene/protein feature
+#' `Gene_Test_perform()` fits PageDL models directly on a gene/protein feature
 #' matrix and evaluates them on an independent test set. There is no pathway
 #' loop. Base learners are fit on the selected genes, and their fitted
 #' prediction columns are used by the stacked ensemble learners. With `ensemble
@@ -150,6 +154,8 @@ Gene_Train_perform_CV <- function(outcome.type, outcome, survdays = NULL,
 #' @param auto.tune Logical. If `TRUE`, tune base-model parameters on the
 #' training gene matrix before independent test evaluation.
 #' @param tune.method,tune.n,tune.folds,tune.iter,tune.models Tuning controls.
+#' @param suppress.model.warnings Logical. Defaults to `TRUE`. Set to `FALSE`
+#' to show warnings emitted during model tuning, fitting, and scoring.
 #'
 #' @return A data frame of model-level independent test performance metrics.
 #'
@@ -188,7 +194,8 @@ Gene_Test_perform <- function(outcome.type, outcome, survdays = NULL,
                               tune.n = 5,
                               tune.folds = 3,
                               tune.iter = 1,
-                              tune.models = NULL) {
+                              tune.models = NULL,
+                              suppress.model.warnings = TRUE) {
   models.indiv <- caspen_default_models_for_outcome(outcome.type, models.indiv)
   if (isTRUE(ensemble) && is.null(models.ens)) models.ens <- models.indiv
   features <- caspen_gene_level_features(
@@ -216,7 +223,8 @@ Gene_Test_perform <- function(outcome.type, outcome, survdays = NULL,
     tune.n = tune.n,
     tune.folds = tune.folds,
     tune.iter = tune.iter,
-    tune.models = tune.models
+    tune.models = tune.models,
+    suppress.model.warnings = suppress.model.warnings
   )
   attr(res, "analysis.level") <- "gene"
   attr(res, "genes") <- features[[1]]

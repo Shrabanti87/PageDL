@@ -98,12 +98,12 @@ pathway prior weights. This function is used by \code{pathway_select()} when
 and save the curated signatures or prior table before model fitting.
 }
 \details{
-CASPEN supports four prior-weight strategies. With \code{prior.method = "llm"},
-the prior is the LLM-assigned 0-1 evidence score. With \code{prior.method = "pubmed_count"}, CASPEN queries PubMed for each disease + outcome + pathway
+PageDL supports four prior-weight strategies. With \code{prior.method = "llm"},
+the prior is the LLM-assigned 0-1 evidence score. With \code{prior.method = "pubmed_count"}, PageDL queries PubMed for each disease + outcome + pathway
 combination and computes \code{pubmed.score = log1p(count) / max(log1p(count))}
-across the submitted pathways. With \code{prior.method = "pubtator"}, CASPEN
+across the submitted pathways. With \code{prior.method = "pubtator"}, PageDL
 retrieves PubMed IDs and checks PubTator3 gene annotations for submitted
-pathway genes. With \code{prior.method = "hybrid"}, CASPEN forms a weighted
+pathway genes. With \code{prior.method = "hybrid"}, PageDL forms a weighted
 average of available component scores:
 
 \verb{prior = sum(component_score * hybrid.weight) / sum(available weights)}.
@@ -115,7 +115,7 @@ omitted and the remaining weights are re-normalized.
 \examples{
 \dontrun{
 # 1) Load example data and pathway definitions.
-library(CASPEN)
+library(PageDL)
 data(caspen_example)
 
 pathways <- caspen_example$pathways[1:5]

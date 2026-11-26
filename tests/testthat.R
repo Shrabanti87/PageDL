@@ -1,4 +1,4 @@
 library(testthat)
-library(CASPEN)
+library(PageDL)
 
-test_check("CASPEN")
+test_check("PageDL")

@@ -27,7 +27,7 @@
 #' @param tune.method Candidate-search strategy. `"random"` is the recommended
 #' fast option and `"grid"` evaluates a deterministic grid. The accepted
 #' `"successive_halving"`, `"hyperband"`, and `"bayes"` values currently use
-#' CASPEN's random-search backend.
+#' PageDL's random-search backend.
 #' @param tune.n Positive integer number of candidate parameter settings sampled
 #' per tuned model.
 #' @param tune.folds Integer number of folds used by the internal tuning CV.
@@ -44,6 +44,9 @@
 #' @param future.strategy Future backend strategy used when `parallel.iter =
 #' TRUE`. Default is `"multisession"`. Use `NULL` to use the caller's existing
 #' future plan.
+#' @param suppress.model.warnings Logical. If `TRUE` (default), suppress
+#' warnings from tuning, fitting, and scoring models. Use `FALSE` to show
+#' warnings emitted by the model workflow. Messages and errors remain visible.
 #'
 #' @examples
 #' \dontrun{
@@ -126,18 +129,20 @@ Train_perform_CV <- function(outcome.type, outcome, survdays = NULL, time_point 
                              parallel.iter = FALSE,
                              workers = future::availableCores(),
                              future.seed = NULL,
-                             future.strategy = "multisession") {
+                             future.strategy = "multisession",
+                             suppress.model.warnings = TRUE) {
   type_out <- tolower(outcome.type)
   tune.method <- match.arg(tune.method)
   if (!type_out %in% c("binary", "categorical", "survival", "continuous")) {
     stop("Invalid outcome.type: Must be 'binary', 'categorical', 'survival', or 'continuous'.")
   }
+  run_fit <- if (isTRUE(suppress.model.warnings)) suppressWarnings else identity
   tuning.table <- NULL
   if (isTRUE(auto.tune)) {
     tune.genes <- unique(unlist(lapply(features, extract_pathway_genes)))
     tune.genes <- tune.genes[tune.genes %in% colnames(train_data)]
     if (length(tune.genes)) {
-      tuned <- caspen_auto_tune_params(
+      tuned <- run_fit(caspen_auto_tune_params(
         outcome.type = type_out,
         outcome = outcome,
         x = train_data[, tune.genes, drop = FALSE],
@@ -151,13 +156,13 @@ Train_perform_CV <- function(outcome.type, outcome, survdays = NULL, time_point 
         survdays = survdays,
         time_point = time_point,
         seed = 1
-      )
+      ))
       param.indiv <- tuned$param.indiv
       tuning.table <- tuned$tuning.table
     }
   }
   if (type_out == "binary") {
-    res <- run_train_performance_iterations(
+    res <- run_fit(run_train_performance_iterations(
       binary_train_performance,
       iter         = iter,
       parallel.iter = parallel.iter,
@@ -173,12 +178,12 @@ Train_perform_CV <- function(outcome.type, outcome, survdays = NULL, time_point 
       models.ens   = models.ens,
       param.indiv  = param.indiv,
       param.ens    = param.ens
-    )
+    ))
   } else if (type_out == "survival") {
     if (is.null(survdays) || is.null(time_point)) {
       stop("survdays and time_point are required for survival outcomes.")
     }
-    res <- run_train_performance_iterations(
+    res <- run_fit(run_train_performance_iterations(
       surv_train_performance,
       iter         = iter,
       parallel.iter = parallel.iter,
@@ -196,9 +201,9 @@ Train_perform_CV <- function(outcome.type, outcome, survdays = NULL, time_point 
       models.ens   = models.ens,
       param.indiv  = param.indiv,
       param.ens    = param.ens
-    )
+    ))
   } else if (type_out == "categorical") {
-    res <- run_train_performance_iterations(
+    res <- run_fit(run_train_performance_iterations(
       cat_train_performance,
       iter         = iter,
       parallel.iter = parallel.iter,
@@ -214,9 +219,9 @@ Train_perform_CV <- function(outcome.type, outcome, survdays = NULL, time_point 
       models.ens   = models.ens,
       param.indiv  = param.indiv,
       param.ens    = param.ens
-    )
+    ))
   } else if (type_out == "continuous") {
-    res <- run_train_performance_iterations(
+    res <- run_fit(run_train_performance_iterations(
       continuous_train_performance,
       iter         = iter,
       parallel.iter = parallel.iter,
@@ -232,7 +237,7 @@ Train_perform_CV <- function(outcome.type, outcome, survdays = NULL, time_point 
       models.ens   = models.ens,
       param.indiv  = param.indiv,
       param.ens    = param.ens
-    )
+    ))
   }
 
   if (isTRUE(auto.tune)) attr(res, "tuning") <- tuning.table

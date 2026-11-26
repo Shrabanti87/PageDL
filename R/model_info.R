@@ -1,6 +1,6 @@
-#' CASPEN Model Backend Information
+#' PageDL Model Backend Information
 #'
-#' Returns the model abbreviations used by CASPEN, the main R package used for
+#' Returns the model abbreviations used by PageDL, the main R package used for
 #' each backend, and the installed package version on the user's machine. This
 #' is useful for reproducibility sections in reports, vignettes, and manuscript
 #' supplements.
@@ -29,7 +29,7 @@ caspen_model_info <- function() {
       "randomForest for classification; randomForestSRC for survival.",
       "cv.glmnet/glmnet for binary, multiclass, and Cox models.",
       "gbm/gmb.fit for classification and Cox proportional hazards boosting.",
-      "caret KNN helpers for classification; CASPEN KNN risk helper for survival.",
+      "caret KNN helpers for classification; PageDL KNN risk helper for survival.",
       "e1071 SVM for classification; survivalsvm for survival.",
       "naivebayes/e1071 implementations depending on task.",
       "rpart decision trees for classification and survival-style trees.",

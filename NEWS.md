@@ -1,3 +1,11 @@
+# PageDL 0.0.4
+
+- Renamed the R package from CASPEN to PageDL. Load it with `library(PageDL)`.
+  Existing function and bundled data names are unchanged.
+- Pathway selection and pathway- and gene-level performance functions suppress
+  model warnings by default. Use `suppress.model.warnings = FALSE` to show
+  warnings from model tuning, fitting, and scoring.
+
 # CASPEN 0.0.3
 
 - Aligns simple-ensemble out-of-fold predictions with original sample order

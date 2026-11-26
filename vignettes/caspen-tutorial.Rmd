@@ -1,9 +1,9 @@
 ---
-title: "CASPEN Tutorial: Celltype-Aware Stacked Pathway-Guided Ensemble Prediction"
+title: "PageDL Tutorial: Pathway-Guided Ensemble Prediction"
 author: "Shrabanti Chowdhury, Anna Xing, Pei Wang"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{CASPEN Tutorial: Celltype-Aware Stacked Pathway-Guided Ensemble Prediction}
+  %\VignetteIndexEntry{PageDL Tutorial: Pathway-Guided Ensemble Prediction}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,17 +16,17 @@ knitr::opts_chunk$set(
 )
 ```
 
-CASPEN (celltype aware stacked pathway guided ensemble) is designed for
-pathway-guided prediction when the biological signal is organized by pathways,
-cell types, or both. It supports three outcome families:
+PageDL builds pathway-guided models from bulk or cell-type-specific molecular
+data. It supports four outcome types:
 
 - binary outcomes, evaluated with AUC and sensitivity at high specificity
 - survival outcomes, evaluated with time-dependent AUC, C-index, and SP95
 - categorical outcomes, evaluated with multiclass AUC and SP95
+- continuous outcomes, evaluated with C-index, R2, MAE, and RMSE
 
-The central idea is simple: build models within pathway-celltype feature sets,
-select predictive pathway-celltypes, optionally refine genes within those
-pathways, and then evaluate training or independent test performance.
+Start by screening pathways, or pathway and cell-type pairs when the data
+resolve cell types. After optional gene selection, evaluate how well the
+selected features predict outcomes in cross-validation or a separate test set.
 
 ```{r workflow-figure, echo = FALSE, out.width = "100%"}
 workflow_figure <- c(
@@ -52,7 +52,7 @@ The package includes a compact example object. It contains a binary outcome,
 an omics matrix, and a list of pathway gene sets.
 
 ```{r load-data}
-library(CASPEN)
+library(PageDL)
 data(caspen_example)
 
 names(caspen_example)
@@ -72,7 +72,7 @@ pathways <- caspen_example$pathways[1:3]
 
 ## Model Backends And Versions
 
-CASPEN uses short model abbreviations in all three outcome families. To record
+PageDL uses short model abbreviations across all outcome types. To record
 the modeling packages and installed versions used in an analysis, run:
 
 ```{r model-info}
@@ -115,7 +115,7 @@ path_res$features
 ```
 
 To parallelize repeated iterations within each pathway, turn on the future
-backend. By default, CASPEN uses `future::availableCores()` and caps the worker
+backend. By default, PageDL uses `future::availableCores()` and caps the worker
 count at `iter`, so users do not need to hard-code a worker number.
 
 ```{r pathway-select-parallel-example, eval = FALSE}
@@ -133,7 +133,7 @@ path_res <- pathway_select(
 
 ### Adding Literature or LLM Priors
 
-CASPEN can use user-supplied literature signatures:
+PageDL can use user-supplied literature signatures:
 
 - additional literature-derived gene sets through `literature.features`
 - pathway prior weights through `pathway.prior`
@@ -168,12 +168,12 @@ path_res$SP.95
 path_res$Prior.weight
 ```
 
-If user-supplied signatures are not available, CASPEN can query an LLM for
+If user-supplied signatures are not available, PageDL can query an LLM for
 disease/outcome-specific signatures and prior weights. By default this uses the
 OpenAI API through `OPENAI_API_KEY` and can retrieve PubMed abstracts as
 grounding context.
 
-CASPEN supports three literature-prior routes:
+PageDL supports three literature-prior routes:
 
 1. Use `prior.method = "pubmed_count"` in `llm_literature_signatures()` or
    `llm.prior.method = "pubmed_count"` in `pathway_select()` to avoid an LLM
@@ -301,7 +301,7 @@ path_res$llm$evidence
 
 `llm.mode = "curate"` adds new literature signatures without prior scoring,
 `llm.mode = "prior"` scores existing user pathways without adding new
-signatures, and `llm.mode = "both"` does both. CASPEN keeps the model metric,
+signatures, and `llm.mode = "both"` does both. PageDL keeps the model metric,
 SP95, and prior weight as separate outputs so users can choose cutoffs directly.
 
 The LLM output can also be generated and inspected before model fitting:
@@ -321,7 +321,7 @@ llm_res$evidence
 
 ## Step 2: Celltype-Aware Pathway Mapping
 
-If the columns of the omics matrix encode both gene and cell type, CASPEN can
+If the columns of the omics matrix encode both gene and cell type, PageDL can
 expand bulk pathways into pathway-celltype features.
 
 Supported column styles include:
@@ -370,7 +370,7 @@ because those cell types have `"immune"` as an alias.
 `gene_select()` is a separate optional step. It uses native model importance
 from models such as `XG`, `RF`, `GB`, `EN`, `MB`, and `DCT`.
 
-Because raw importance has different meanings in different models, CASPEN does
+Because raw importance has different meanings in different models, PageDL does
 not average raw values. Instead it:
 
 1. converts native importance to within-run percentiles,
@@ -478,7 +478,7 @@ surv_res$SP.95
 
 ## Categorical Outcomes
 
-For categorical outcomes, CASPEN supports multiclass prediction using models
+For categorical outcomes, PageDL supports multiclass prediction using models
 such as random forest, elastic net, gradient boosting, model-based boosting, and
 one-vs-rest learners where needed.
 

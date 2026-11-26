@@ -1,6 +1,6 @@
-#' Launch The CASPEN Shiny Demo
+#' Launch The PageDL Shiny Demo
 #'
-#' Opens a lightweight Shiny application for demonstrating CASPEN on the
+#' Opens a lightweight Shiny application for demonstrating PageDL on the
 #' bundled `caspen_example` dataset. The app is intended for teaching and
 #' collaborator walkthroughs, not for long production analyses.
 #'
@@ -20,9 +20,9 @@ launch_caspen_demo <- function(...) {
   if (!requireNamespace("shiny", quietly = TRUE)) {
     stop("The shiny package is required. Install it with install.packages('shiny').")
   }
-  app.dir <- system.file("shiny", "caspen-demo", package = "CASPEN")
+  app.dir <- system.file("shiny", "caspen-demo", package = "PageDL")
   if (!nzchar(app.dir)) {
-    stop("Could not find the packaged CASPEN Shiny demo app.")
+    stop("Could not find the packaged PageDL Shiny demo app.")
   }
   shiny::runApp(app.dir, ...)
 }

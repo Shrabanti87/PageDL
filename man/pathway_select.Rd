@@ -62,7 +62,8 @@ pathway_select(
   parallel.pathways = FALSE,
   workers = future::availableCores(),
   future.seed = NULL,
-  future.strategy = "multisession"
+  future.strategy = "multisession",
+  suppress.model.warnings = TRUE
 )
 }
 \arguments{
@@ -174,7 +175,7 @@ grounding context.}
 \item{llm.email}{Optional email passed to NCBI E-utilities.}
 
 \item{llm.valid.genes}{Optional valid gene-symbol universe for filtering LLM
-gene symbols. If \code{NULL}, CASPEN infers this from \code{features}.}
+gene symbols. If \code{NULL}, PageDL infers this from \code{features}.}
 
 \item{llm.prior.method}{Character string specifying how LLM/literature prior
 weights are computed. \code{"llm"} uses the LLM-assigned score,
@@ -216,7 +217,7 @@ main pathway evaluation. Defaults to \code{FALSE}.}
 \item{tune.method}{Candidate-search strategy. \code{"random"} is the recommended
 fast option and \code{"grid"} evaluates a deterministic grid. The accepted
 \code{"successive_halving"}, \code{"hyperband"}, and \code{"bayes"} values currently use
-CASPEN's random-search backend.}
+PageDL's random-search backend.}
 
 \item{tune.n}{Positive integer number of candidate parameter settings sampled
 per tuned model and pathway.}
@@ -234,7 +235,7 @@ pathway are split across a temporary \code{future} multisession backend.}
 \item{parallel.pathways}{Logical; if \code{TRUE}, pathway or pathway-celltype
 tasks are split across a temporary \code{future} backend. This is usually the
 preferred parallelization mode when many pathways/celltypes are evaluated.
-If both \code{parallel.pathways} and \code{parallel.iter} are \code{TRUE}, CASPEN
+If both \code{parallel.pathways} and \code{parallel.iter} are \code{TRUE}, PageDL
 parallelizes pathways and runs iterations serially within each pathway to
 avoid nested worker oversubscription.}
 
@@ -244,13 +245,17 @@ avoid nested worker oversubscription.}
 of iterations or pathway tasks being split.}
 
 \item{future.seed}{Passed to \code{future.apply::future_lapply()}. Default is
-\code{NULL} because CASPEN already calls \code{set.seed()} by iteration number inside
+\code{NULL} because PageDL already calls \code{set.seed()} by iteration number inside
 each worker, preserving serial-compatible fold generation without additional
 future RNG streams.}
 
 \item{future.strategy}{Future backend strategy used when \code{parallel.iter = TRUE}. Default is \code{"multisession"}. Use \code{"multicore"} on platforms where
 forked workers are preferred, or \code{NULL} to use the caller's existing future
 plan.}
+
+\item{suppress.model.warnings}{Logical. If \code{TRUE} (default), suppress
+warnings from pathway model tuning, fitting, and scoring. Use \code{FALSE} to
+show warnings emitted by the model workflow. Literature warnings remain visible.}
 }
 \value{
 A list containing separate matrices for the primary data metric
@@ -356,7 +361,7 @@ AUC.mat$selection.table
 # Celltype-aware pathway selection
 # -----------------------------------------------------------------------
 # If data columns contain celltype-specific features such as
-# "TP53_CD8_Tcells" or "CD8_Tcells_TP53", CASPEN maps each bulk pathway
+# "TP53_CD8_Tcells" or "CD8_Tcells_TP53", PageDL maps each bulk pathway
 # gene list to the matching celltype-specific columns. Pathway names that
 # contain a celltype alias are evaluated only for matching celltypes.
 celltypes <- c("Tumor", "CD4_Tcells", "CD8_Tcells", "Macrophages")
@@ -407,9 +412,9 @@ prior_res$Prior.weight     # literature/user prior weights
 prior_res$selection.table  # one row per pathway-celltype/model summary
 
 # -----------------------------------------------------------------------
-# Ask CASPEN to score pathway priors from literature
+# Ask PageDL to score pathway priors from literature
 # -----------------------------------------------------------------------
-# No LLM key is needed for PubMed-count priors. CASPEN searches PubMed for
+# No LLM key is needed for PubMed-count priors. PageDL searches PubMed for
 # disease + outcome + pathway and normalizes log paper counts to 0-1.
 pubmed_prior_res <- pathway_select(
   outcome.type = "binary",

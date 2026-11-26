@@ -24,7 +24,8 @@ Gene_Test_perform(
   tune.n = 5,
   tune.folds = 3,
   tune.iter = 1,
-  tune.models = NULL
+  tune.models = NULL,
+  suppress.model.warnings = TRUE
 )
 }
 \arguments{
@@ -68,12 +69,15 @@ aggregation is over base learners.}
 training gene matrix before independent test evaluation.}
 
 \item{tune.method, tune.n, tune.folds, tune.iter, tune.models}{Tuning controls.}
+
+\item{suppress.model.warnings}{Logical. Defaults to \code{TRUE}. Set to \code{FALSE}
+to show warnings emitted during model tuning, fitting, and scoring.}
 }
 \value{
 A data frame of model-level independent test performance metrics.
 }
 \description{
-\code{Gene_Test_perform()} fits CASPEN models directly on a gene/protein feature
+\code{Gene_Test_perform()} fits PageDL models directly on a gene/protein feature
 matrix and evaluates them on an independent test set. There is no pathway
 loop. Base learners are fit on the selected genes, and their fitted
 prediction columns are used by the stacked ensemble learners. With \code{ensemble = TRUE}, returned rows are the requested ensemble learners plus simple and

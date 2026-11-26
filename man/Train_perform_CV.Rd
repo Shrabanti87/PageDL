@@ -27,7 +27,8 @@ Train_perform_CV(
   parallel.iter = FALSE,
   workers = future::availableCores(),
   future.seed = NULL,
-  future.strategy = "multisession"
+  future.strategy = "multisession",
+  suppress.model.warnings = TRUE
 )
 }
 \arguments{
@@ -66,7 +67,7 @@ main repeated cross-validation run. Defaults to \code{FALSE}.}
 \item{tune.method}{Candidate-search strategy. \code{"random"} is the recommended
 fast option and \code{"grid"} evaluates a deterministic grid. The accepted
 \code{"successive_halving"}, \code{"hyperband"}, and \code{"bayes"} values currently use
-CASPEN's random-search backend.}
+PageDL's random-search backend.}
 
 \item{tune.n}{Positive integer number of candidate parameter settings sampled
 per tuned model.}
@@ -90,6 +91,10 @@ at \code{iter}.}
 
 \item{future.strategy}{Future backend strategy used when \code{parallel.iter = TRUE}. Default is \code{"multisession"}. Use \code{NULL} to use the caller's existing
 future plan.}
+
+\item{suppress.model.warnings}{Logical. If \code{TRUE} (default), suppress
+warnings from tuning, fitting, and scoring models. Use \code{FALSE} to show
+warnings emitted by the model workflow. Messages and errors remain visible.}
 }
 \description{
 This function evaluates the predictive performance of trained models

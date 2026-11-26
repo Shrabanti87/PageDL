@@ -1,13 +1,12 @@
-#' CASPEN: Celltype-Aware Stacked Pathway-Guided Ensemble Prediction
+#' PageDL: Pathway-Guided Ensemble Prediction
 #'
-#' CASPEN (celltype aware stacked pathway guided ensemble) trains and evaluates
-#' celltype-aware pathway-guided ensemble models on high-dimensional omics data.
-#' Supports binary, multi-class, and survival outcomes with pathway selection,
-#' gene selection, celltype-aware pathway expansion, and stacked-generalization
-#' meta-learning.
+#' PageDL trains and evaluates pathway-guided ensembles on bulk and
+#' cell-type-specific molecular data. Supports binary, multiclass, survival,
+#' and continuous outcomes, with pathway and gene selection and optional
+#' literature priors.
 #'
 #' @section Model backends:
-#' CASPEN uses short model abbreviations across functions. Use
+#' PageDL uses short model abbreviations across functions. Use
 #' `caspen_model_info()` to see the backend package for each abbreviation and
 #' the installed package version on the current machine. Common abbreviations
 #' include `XG` (xgboost), `RF` (random forest), `EN` (elastic net), `GB`
@@ -16,13 +15,13 @@
 #' `ADB` (AdaBoost), and `MB` (model-based boosting).
 #'
 #' @section LLM and literature priors:
-#' CASPEN can use literature priors in three ways. First, users can supply
-#' `literature.features` and `pathway.prior` directly. Second, CASPEN can score
+#' PageDL can use literature priors in three ways. First, users can supply
+#' `literature.features` and `pathway.prior` directly. Second, PageDL can score
 #' pathway names by normalized PubMed counts or PubTator3 gene-annotation
 #' evidence with `prior.method = "pubmed_count"` or `"pubtator"` in
 #' `llm_literature_signatures()`, and `llm.prior.method = "pubmed_count"` or
 #' `"pubtator"` in `pathway_select()`. These do not require an LLM key. Third,
-#' CASPEN can query an LLM through the OpenAI API by setting
+#' PageDL can query an LLM through the OpenAI API by setting
 #' `OPENAI_API_KEY`, or through a local/custom function with `llm.provider =
 #' "custom"` and `llm.fn`. For a free local option, install Ollama, run
 #' `ollama pull qwen2.5:7b`, keep Ollama running, and pass an `llm.fn` wrapper

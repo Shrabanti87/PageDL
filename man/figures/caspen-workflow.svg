@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1120" height="520" viewBox="0 0 1120 520" role="img" aria-labelledby="title desc">
-  <title id="title">CASPEN workflow</title>
-  <desc id="desc">Workflow from input omics data and pathway definitions to celltype-aware pathway selection, optional gene selection, model training, and test performance.</desc>
+  <title id="title">PageDL workflow</title>
+  <desc id="desc">Workflow from bulk or cell-type-specific molecular data and pathway definitions to pathway selection, optional gene selection, model training, and test performance.</desc>
   <defs>
     <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L0,6 L9,3 z" fill="#334155"/>
@@ -21,11 +21,11 @@
   </defs>
   <rect class="bg" x="0" y="0" width="1120" height="520"/>
   <rect class="band" x="24" y="24" width="1072" height="472" rx="18"/>
-  <text class="title" x="50" y="62">CASPEN Celltype-Aware Stacked Pathway Ensemble Workflow</text>
+  <text class="title" x="50" y="62">PageDL Pathway Ensemble Workflow</text>
 
   <rect class="box" x="50" y="105" width="200" height="120"/>
   <text class="text" x="72" y="138">Input data</text>
-  <text class="small" x="72" y="166">• Omics matrix</text>
+  <text class="small" x="72" y="166">• Bulk or cell-type omics</text>
   <text class="small" x="72" y="188">• Outcome labels</text>
   <text class="small" x="72" y="210">• Survival time if needed</text>
 
@@ -36,7 +36,7 @@
   <text class="small" x="72" y="390">• Optional prior weights</text>
 
   <rect class="box3" x="310" y="180" width="220" height="150"/>
-  <text class="text" x="332" y="214">Celltype mapping</text>
+  <text class="text" x="332" y="214">Optional cell-type mapping</text>
   <text class="small" x="332" y="244">Bulk pathways expand to</text>
   <text class="small" x="332" y="266">pathway-celltype features</text>
   <text class="small" x="332" y="292">Aliases control terms like</text>
@@ -44,8 +44,8 @@
 
   <rect class="box2" x="590" y="105" width="220" height="140"/>
   <text class="text" x="612" y="138">pathway_select()</text>
-  <text class="small" x="612" y="166">Runs pathway-celltype</text>
-  <text class="small" x="612" y="188">models and selects by</text>
+  <text class="small" x="612" y="166">Fits pathway models in</text>
+  <text class="small" x="612" y="188">bulk or by cell type</text>
   <text class="small" x="612" y="210">AUC / C-index / SP95</text>
   <text class="small" x="612" y="232">plus optional prior</text>
 

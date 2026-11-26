@@ -1,15 +1,15 @@
 library(shiny)
 library(DT)
-library(CASPEN)
+library(PageDL)
 
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
-data(caspen_example, package = "CASPEN")
+data(caspen_example, package = "PageDL")
 demo_data <- caspen_example$data_to_pass
 demo_outcome <- caspen_example$outcome
 demo_pathways <- caspen_example$pathways
-default_test_data_file <- system.file("extdata", "protein_data_Test.csv", package = "CASPEN")
-default_test_outcome_file <- system.file("extdata", "outcome_binary_Test.csv", package = "CASPEN")
+default_test_data_file <- system.file("extdata", "protein_data_Test.csv", package = "PageDL")
+default_test_outcome_file <- system.file("extdata", "outcome_binary_Test.csv", package = "PageDL")
 
 available_models <- c("XG", "RF", "EN", "GB", "KNN", "SVM", "NB", "DCT", "NN", "ADB", "MB")
 
@@ -94,7 +94,7 @@ ui <- fluidPage(
   ),
   div(
     class = "title-panel",
-    h2("CASPEN Demo"),
+    h2("PageDL Demo"),
     p("Celltype-aware stacked pathway-guided ensemble prediction on a bundled toy dataset.")
   ),
   sidebarLayout(
@@ -372,7 +372,7 @@ server <- function(input, output, session) {
 
   pathway_result <- eventReactive(input$run_pathway, {
     withProgress(message = "Running pathway_select()", value = 0.2, {
-      CASPEN::pathway_select(
+      PageDL::pathway_select(
         outcome.type = "binary",
         outcome = demo_outcome,
         data = demo_data,
@@ -423,7 +423,7 @@ server <- function(input, output, session) {
   llm_demo_result <- eventReactive(input$run_llm_demo, {
     settings <- llm_settings()
     withProgress(message = "Running llm_literature_signatures()", value = 0.2, {
-      CASPEN::llm_literature_signatures(
+      PageDL::llm_literature_signatures(
         disease = settings$disease,
         outcome.context = settings$outcome.context,
         features = selected_features(),
@@ -650,7 +650,7 @@ server <- function(input, output, session) {
 
   output$test_summary <- renderPrint({
     test_obj <- external_test()
-    cat("Training data: bundled CASPEN example\n")
+    cat("Training data: bundled PageDL example\n")
     cat("Training samples:", nrow(demo_data), "\n")
     cat("Training outcome counts:\n")
     print(table(demo_outcome))
@@ -688,7 +688,7 @@ server <- function(input, output, session) {
 
   output$path_code <- renderText({
     code_block(
-      "library(CASPEN)",
+      "library(PageDL)",
       "data(caspen_example)",
       "path_res <- pathway_select(",
       "  outcome.type = 'binary',",

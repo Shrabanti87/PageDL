@@ -1,4 +1,4 @@
-#' Independent Test Dataset For CASPEN Examples
+#' Independent Test Dataset For PageDL Examples
 #'
 #' An independent binary-outcome protein test dataset used to demonstrate
 #' `Test_perform()` after training or pathway selection on `caspen_example`.

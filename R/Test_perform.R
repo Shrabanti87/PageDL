@@ -25,13 +25,16 @@
 #' @param tune.method Candidate-search strategy. `"random"` is the recommended
 #' fast option and `"grid"` evaluates a deterministic grid. The accepted
 #' `"successive_halving"`, `"hyperband"`, and `"bayes"` values currently use
-#' CASPEN's random-search backend.
+#' PageDL's random-search backend.
 #' @param tune.n Positive integer number of candidate parameter settings sampled
 #' per tuned model.
 #' @param tune.folds Integer number of folds used by the internal tuning CV.
 #' @param tune.iter Integer number of repeated internal tuning evaluations.
 #' @param tune.models Optional character vector restricting tuning to a subset
 #' of `models.indiv`. `NULL` considers every supported requested model.
+#' @param suppress.model.warnings Logical. If `TRUE` (default), suppress
+#' warnings from tuning, fitting, and scoring models. Use `FALSE` to show
+#' warnings emitted by the model workflow. Messages and errors remain visible.
 #'
 #' @examples
 #' \dontrun{
@@ -115,18 +118,20 @@ Test_perform <- function(outcome.type, outcome, survdays = NULL, time_point = NU
                          tune.n = 5,
                          tune.folds = 3,
                          tune.iter = 1,
-                         tune.models = NULL) {
+                         tune.models = NULL,
+                         suppress.model.warnings = TRUE) {
   type_out <- tolower(outcome.type)
   tune.method <- match.arg(tune.method)
   if (!type_out %in% c("binary", "categorical", "survival", "continuous")) {
     stop("Invalid outcome.type: Must be 'binary', 'categorical', 'survival', or 'continuous'.")
   }
+  run_fit <- if (isTRUE(suppress.model.warnings)) suppressWarnings else identity
   tuning.table <- NULL
   if (isTRUE(auto.tune)) {
     tune.genes <- unique(unlist(lapply(features, extract_pathway_genes)))
     tune.genes <- tune.genes[tune.genes %in% colnames(train_data)]
     if (length(tune.genes)) {
-      tuned <- caspen_auto_tune_params(
+      tuned <- run_fit(caspen_auto_tune_params(
         outcome.type = type_out,
         outcome = outcome,
         x = train_data[, tune.genes, drop = FALSE],
@@ -140,13 +145,13 @@ Test_perform <- function(outcome.type, outcome, survdays = NULL, time_point = NU
         survdays = survdays,
         time_point = time_point,
         seed = 1
-      )
+      ))
       param.indiv <- tuned$param.indiv
       tuning.table <- tuned$tuning.table
     }
   }
   if (type_out == "binary") {
-    res <- binary_test_performance(
+    res <- run_fit(binary_test_performance(
       outcome      = outcome,
       train_data   = train_data,
       test_data    = test_data,
@@ -157,12 +162,12 @@ Test_perform <- function(outcome.type, outcome, survdays = NULL, time_point = NU
       models.ens   = models.ens,
       param.indiv  = param.indiv,
       param.ens    = param.ens
-    )
+    ))
   } else if (type_out == "survival") {
     if (is.null(survdays) || is.null(test_time) || is.null(time_point)) {
       stop("survdays, test_time, and time_point are required for survival outcomes.")
     }
-    res <- surv_test_performance(
+    res <- run_fit(surv_test_performance(
       xtrain_time  = survdays,
       outcome      = outcome,
       xtest_time   = test_time,
@@ -176,9 +181,9 @@ Test_perform <- function(outcome.type, outcome, survdays = NULL, time_point = NU
       models.ens   = models.ens,
       param.indiv  = param.indiv,
       param.ens    = param.ens
-    )
+    ))
   } else if (type_out == "categorical") {
-    res <- cat_test_performance(
+    res <- run_fit(cat_test_performance(
       outcome      = outcome,
       train_data   = train_data,
       test_data    = test_data,
@@ -189,9 +194,9 @@ Test_perform <- function(outcome.type, outcome, survdays = NULL, time_point = NU
       models.ens   = models.ens,
       param.indiv  = param.indiv,
       param.ens    = param.ens
-    )
+    ))
   } else if (type_out == "continuous") {
-    res <- continuous_test_performance(
+    res <- run_fit(continuous_test_performance(
       outcome      = outcome,
       train_data   = train_data,
       test_data    = test_data,
@@ -202,7 +207,7 @@ Test_perform <- function(outcome.type, outcome, survdays = NULL, time_point = NU
       models.ens   = models.ens,
       param.indiv  = param.indiv,
       param.ens    = param.ens
-    )
+    ))
   }
 
   if (isTRUE(auto.tune)) attr(res, "tuning") <- tuning.table

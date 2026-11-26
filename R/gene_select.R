@@ -36,7 +36,7 @@
 #' @param tune.method Candidate-search strategy. `"random"` is the recommended
 #' fast option and `"grid"` evaluates a deterministic grid. The accepted
 #' `"successive_halving"`, `"hyperband"`, and `"bayes"` values currently use
-#' CASPEN's random-search backend.
+#' PageDL's random-search backend.
 #' @param tune.n Positive integer number of candidate parameter settings sampled
 #' per tuned model.
 #' @param tune.folds Integer number of folds used by the internal tuning CV.

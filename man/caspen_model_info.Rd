@@ -2,7 +2,7 @@
 % Please edit documentation in R/model_info.R
 \name{caspen_model_info}
 \alias{caspen_model_info}
-\title{CASPEN Model Backend Information}
+\title{PageDL Model Backend Information}
 \usage{
 caspen_model_info()
 }
@@ -11,7 +11,7 @@ A data frame with model abbreviation, model family, backend package,
 installed package version, and notes.
 }
 \description{
-Returns the model abbreviations used by CASPEN, the main R package used for
+Returns the model abbreviations used by PageDL, the main R package used for
 each backend, and the installed package version on the user's machine. This
 is useful for reproducibility sections in reports, vignettes, and manuscript
 supplements.

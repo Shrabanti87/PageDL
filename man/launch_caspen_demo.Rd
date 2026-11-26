@@ -2,7 +2,7 @@
 % Please edit documentation in R/shiny_app.R
 \name{launch_caspen_demo}
 \alias{launch_caspen_demo}
-\title{Launch The CASPEN Shiny Demo}
+\title{Launch The PageDL Shiny Demo}
 \usage{
 launch_caspen_demo(...)
 }
@@ -14,7 +14,7 @@ launch_caspen_demo(...)
 Invisibly returns the result of \code{shiny::runApp()}.
 }
 \description{
-Opens a lightweight Shiny application for demonstrating CASPEN on the
+Opens a lightweight Shiny application for demonstrating PageDL on the
 bundled \code{caspen_example} dataset. The app is intended for teaching and
 collaborator walkthroughs, not for long production analyses.
 }

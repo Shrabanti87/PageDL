@@ -3,7 +3,7 @@
 \docType{data}
 \name{caspen_test_example}
 \alias{caspen_test_example}
-\title{Independent Test Dataset For CASPEN Examples}
+\title{Independent Test Dataset For PageDL Examples}
 \format{
 A list containing:
 \describe{
