@@ -1,4 +1,4 @@
-url: https://Shrabanti87.github.io/CASPEN/
+url: https://Shrabanti87.github.io/PageDL/
 
 template:
   bootstrap: 5
@@ -38,7 +38,7 @@ navbar:
         href: articles/caspen-tutorial.html
     github:
       icon: fa-github
-      href: https://github.com/Shrabanti87/CASPEN
+      href: https://github.com/Shrabanti87/PageDL
       aria-label: GitHub
 
 reference:

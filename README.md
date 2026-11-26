@@ -82,11 +82,11 @@ because LLM gene lists can be small or incomplete.
 
 ## Installation
 
-Install PageDL from the existing GitHub repository:
+Install PageDL from GitHub:
 
 ```r
 install.packages("remotes")
-remotes::install_github("Shrabanti87/CASPEN@main")
+remotes::install_github("Shrabanti87/PageDL@main")
 ```
 
 Install from a local checkout:

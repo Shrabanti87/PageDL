@@ -39,9 +39,9 @@ that calls \verb{http://localhost:11434/api/generate}.
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://Shrabanti87.github.io/CASPEN/}
-  \item \url{https://github.com/Shrabanti87/CASPEN}
-  \item Report bugs at \url{https://github.com/Shrabanti87/CASPEN/issues}
+  \item \url{https://Shrabanti87.github.io/PageDL/}
+  \item \url{https://github.com/Shrabanti87/PageDL}
+  \item Report bugs at \url{https://github.com/Shrabanti87/PageDL/issues}
 }
 
 }

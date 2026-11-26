@@ -22,8 +22,8 @@ Description: Trains and evaluates pathway-guided ensemble models on bulk or
     cell-type-specific molecular data. Supports pathway and gene selection,
     optional literature priors, and prediction for binary, categorical,
     survival, and continuous outcomes.
-URL: https://Shrabanti87.github.io/CASPEN/, https://github.com/Shrabanti87/CASPEN
-BugReports: https://github.com/Shrabanti87/CASPEN/issues
+URL: https://Shrabanti87.github.io/PageDL/, https://github.com/Shrabanti87/PageDL
+BugReports: https://github.com/Shrabanti87/PageDL/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
